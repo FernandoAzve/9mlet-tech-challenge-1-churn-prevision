@@ -1,0 +1,4 @@
+# Configuração SetAI — pode conter chaves de API
+# Não versionar config.json com segredos reais
+
+config.json
