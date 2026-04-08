@@ -65,6 +65,17 @@ Registrar o plano de trabalho do projeto em **notebooks Jupyter** (`notebooks/`)
 
 ---
 
+## Regras para desenvolvimento assíncrono
+
+- Cada notebook deve ser capaz de rodar de forma independente, sem exigir execução anterior de outro notebook.
+- Usar o mesmo `SEED`, caminhos de dados (`Telco_customer_churn_ready.csv`) e lógica de split treino/val/teste em todos os notebooks.
+- Implementar o pré-processamento de forma replicável: ajustar scaler apenas no treino e aplicar em validação/teste.
+- Documentar no início de cada notebook as configurações principais usadas (`SEED`, splits, colunas usadas, validação, métricas).
+- Se precisar reaproveitar um modelo treinado em outro notebook, exportá-lo e documentar o formato/versão; preferir treinar o mesmo modelo localmente para evitar dependência direta.
+- Manter as comparações justas com o mesmo dataset tratado e o mesmo esquema de pré-processamento.
+
+---
+
 ## Ordem sugerida
 
 1 → **já feito** · 2 → 3 → 4 → 5 (o item 5 pode ser aplicado incrementalmente a cada notebook novo ou fechado em um notebook único ao final, desde que nada fique de fora do MLflow).
