@@ -17,51 +17,51 @@ Registrar o plano de trabalho do projeto em **notebooks Jupyter** (`notebooks/`)
 
 ### 1. Construir MLP em PyTorch: arquitetura, função de ativação, loss function
 
-| Campo | Valor |
-|--------|--------|
-| **Status** | Concluído (fase atual) |
-| **Entregável** | `notebooks/03_mlp_pytorch.ipynb` |
-| **Conteúdo** | MLP (`Linear` + **ReLU** + saída logit), **`BCEWithLogitsLoss`**, `DataLoader` com batching básico, treino e avaliação introdutória. |
+| Campo          | Valor                                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Status**     | Concluído (fase atual)                                                                                                               |
+| **Entregável** | `notebooks/03_mlp_pytorch.ipynb`                                                                                                     |
+| **Conteúdo**   | MLP (`Linear` + **ReLU** + saída logit), **`BCEWithLogitsLoss`**, `DataLoader` com batching básico, treino e avaliação introdutória. |
 
 ---
 
 ### 2. Implementar loop de treinamento com early stopping e batching
 
-| Campo | Valor |
-|--------|--------|
-| **Status** | Pendente |
-| **Entregável** | Novo notebook Jupyter em `notebooks/` (sugestão de nome: `04_mlp_training_early_stopping.ipynb`) |
-| **Escopo** | Refinar ou estender o fluxo do MLP: loop de treino explícito com **validação**, **early stopping** (ex.: paciência sobre métrica ou loss de validação) e **batching** já organizado via `DataLoader` (manter padrão reprodutível: `SEED`, split treino/val/teste ou treino/val a partir do treino, sem vazamento do scaler). |
+| Campo          | Valor                                                                                                                                                                                                                                                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**     | Pendente                                                                                                                                                                                                                                                                                                                     |
+| **Entregável** | Novo notebook Jupyter em `notebooks/` (sugestão de nome: `04_mlp_training_early_stopping.ipynb`)                                                                                                                                                                                                                             |
+| **Escopo**     | Refinar ou estender o fluxo do MLP: loop de treino explícito com **validação**, **early stopping** (ex.: paciência sobre métrica ou loss de validação) e **batching** já organizado via `DataLoader` (manter padrão reprodutível: `SEED`, split treino/val/teste ou treino/val a partir do treino, sem vazamento do scaler). |
 
 ---
 
 ### 3. Comparar MLP vs. baselines (lineares + árvores) usando ≥ 4 métricas
 
-| Campo | Valor |
-|--------|--------|
-| **Status** | Pendente |
-| **Entregável** | Novo notebook Jupyter em `notebooks/` (sugestão: `05_compare_mlp_baselines.ipynb`) |
-| **Escopo** | Comparar o MLP (PyTorch) com **baselines lineares** (ex.: regressão logística, como no `02_baseline_dummy_logreg.ipynb`) e **modelos baseados em árvores** (ex.: Random Forest ou Gradient Boosting, desde que permitidos em `allowed-libs`). Calcular e reportar **pelo menos quatro métricas** (ex.: acurácia, precisão, recall, F1, ROC-AUC, PR-AUC — escolher um conjunto coerente com `docs/METRICAS.md`). Mesmo dataset tratado e, quando possível, mesmo split / semente para comparação justa. |
+| Campo          | Valor                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Status**     | Pendente                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Entregável** | Novo notebook Jupyter em `notebooks/` (sugestão: `05_compare_mlp_baselines.ipynb`)                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Escopo**     | Comparar o MLP (PyTorch) com **baselines lineares** (ex.: regressão logística, como no `02_baseline_dummy_logreg.ipynb`) e **modelos baseados em árvores** (ex.: Random Forest ou Gradient Boosting, desde que permitidos em `allowed-libs`). Calcular e reportar **pelo menos quatro métricas** (ex.: acurácia, precisão, recall, F1, ROC-AUC, PR-AUC — escolher um conjunto coerente com `docs/METRICAS.md`). Mesmo dataset tratado e, quando possível, mesmo split / semente para comparação justa. |
 
 ---
 
 ### 4. Analisar trade-off de custo (falso positivo vs. falso negativo)
 
-| Campo | Valor |
-|--------|--------|
-| **Status** | Pendente |
-| **Entregável** | Novo notebook Jupyter em `notebooks/` (sugestão: `06_tradeoff_custo_fp_fn.ipynb`) |
-| **Escopo** | Usar matriz de confusão e/ou curvas (ROC ou PR) para discutir **custo de FP vs. FN** no contexto de churn (ex.: custos relativos ou cenários hipotéticos, alinhados à narrativa de negócio em `METRICAS.md`). Pode incluir varredura de **limiar** de decisão e visualizações simples (matplotlib/seaborn já no projeto). |
+| Campo          | Valor                                                                                                                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Status**     | Concluído                                                                                                                                                                                                          |
+| **Entregável** | `notebooks/05_compare_mlp_baselines.ipynb`                                                                                                                                                                         |
+| **Escopo**     | Implementado com matriz de confusão, varredura de limiar, curvas de métricas e simulação financeira de custo FP/FN (alinhado a `docs/METRICAS.md`), incluindo recomendação de limiar orientada a valor de negócio. |
 
 ---
 
 ### 5. Registrar todos os experimentos (MLP e ensembles) no MLflow
 
-| Campo | Valor |
-|--------|--------|
-| **Status** | Pendente |
+| Campo          | Valor                                                                                                                                                                                                                                                                |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**     | Pendente                                                                                                                                                                                                                                                             |
 | **Entregável** | Integrar MLflow nos notebooks relevantes **ou** um notebook dedicado (sugestão: `07_mlflow_experimentos_mlp_ensembles.ipynb`) que reproduza/registre runs de forma consolidada — desde que **todos** os experimentos de MLP e ensembles fiquem rastreados no MLflow. |
-| **Escopo** | Seguir o padrão do `02_baseline_dummy_logreg.ipynb` (tracking de parâmetros, métricas, artefatos quando fizer sentido). Garantir rastreabilidade dos modelos comparados nos itens 2–4 (MLP, baselines, árvores/ensembles). |
+| **Escopo**     | Seguir o padrão do `02_baseline_dummy_logreg.ipynb` (tracking de parâmetros, métricas, artefatos quando fizer sentido). Garantir rastreabilidade dos modelos comparados nos itens 2–4 (MLP, baselines, árvores/ensembles).                                           |
 
 ---
 
