@@ -4,41 +4,67 @@ Tech Challenge Fase 1 - Pós Machine Learning Engineering FIAP
 
 ## Visão geral
 
-Este repositório contém a etapa inicial do projeto de previsão de churn em telecom, com:
+Este repositório implementa um fluxo completo de previsão de churn em telecom, com:
 
-- Análise exploratória e preparação dos dados.
-- Treinamento de baselines (DummyClassifier e Regressão Logística).
-- Registro de experimentos no MLflow (parâmetros, métricas e versão do dataset).
+- EDA e preparação dos dados.
+- Baselines clássicos (Dummy e Regressão Logística).
+- MLP em PyTorch.
+- Treinamento com early stopping.
+- Comparação entre MLP e modelos lineares/árvores.
+- Análise de trade-off de custo (FP vs FN).
+- Rastreabilidade de experimentos no MLflow.
 
-## Estrutura principal
+Status atual da Etapa 2:
 
-- data/
-  - Telco_customer_churn.xlsx
-  - Telco_customer_churn_ready.csv (gerado pelo notebook de EDA)
-- notebooks/
-  - 01_eda.ipynb
-  - 02_baseline_dummy_logreg.ipynb
-  - mlflow.db
-  - mlruns/
+- Itens 1 a 5 concluídos (incluindo consolidação de runs no MLflow).
+
+## Estrutura do projeto
+
+```text
+.
+├── data/
+│   ├── Telco_customer_churn.xlsx
+│   └── Telco_customer_churn_ready.csv
+├── docs/
+│   ├── METRICAS.md
+│   ├── TODO.md
+│   ├── MELHORIAS_CONTINUAS_ETAPA2.md
+│   └── CHANGELOG.md
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_baseline_dummy_logreg.ipynb
+│   ├── 03_mlp_pytorch.ipynb
+│   ├── 04_mlp_training_early_stopping.ipynb
+│   ├── 05_compare_mlp_baselines.ipynb
+│   ├── 06_tradeoff_custo_fp_fn.ipynb
+│   ├── mlflow.db
+│   ├── mlruns/
+│   └── mlflow_resumo_experimentos_etapa2.csv
+├── requirements.txt
+└── README.md
+```
 
 ## Pré-requisitos
 
-Para executar localmente, tenha instalado:
+Instale localmente:
 
-1. Python 3.10 ou superior.
-2. Git.
-3. Ambiente virtual (venv).
-4. Dependências Python abaixo:
-	- pandas
-	- numpy
-	- scikit-learn
-	- openpyxl
-	- jupyter
-	- mlflow
-	- matplotlib
-	- seaborn
+1. Python 3.10.x
+2. Git
+3. Ambiente virtual (venv)
 
-## Setup local
+Dependências do projeto estão em requirements.txt e incluem (versões fixadas):
+
+- torch==2.6.0
+- pandas==2.3.3
+- numpy==1.26.4
+- scikit-learn==1.7.2
+- openpyxl==3.1.5
+- jupyter==1.1.1
+- mlflow==3.10.1
+- matplotlib==3.10.8
+- seaborn==0.13.2
+
+## Setup rápido
 
 ### 1) Clonar o repositório
 
@@ -47,7 +73,7 @@ git clone <URL_DO_REPOSITORIO>
 cd 9mlet-tech-challenge-1-churn-prevision
 ```
 
-### 2) Criar e ativar ambiente virtual
+### 2) Criar e ativar o ambiente virtual
 
 Windows (PowerShell):
 
@@ -73,14 +99,11 @@ source .venv/bin/activate
 ### 3) Instalar dependências
 
 ```bash
-pip install pandas numpy scikit-learn openpyxl jupyter mlflow matplotlib seaborn
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-## Como executar os notebooks
-
-### 1) Subir o Jupyter
-
-Na raiz do projeto:
+### 4) Abrir os notebooks
 
 ```bash
 jupyter lab
@@ -92,102 +115,145 @@ ou
 jupyter notebook
 ```
 
-### 2) Executar o notebook de EDA
+## Ordem recomendada de execução
 
-Arquivo:
+Para reproduzir o estado atual do projeto, execute os notebooks nesta ordem:
 
-- notebooks/01_eda.ipynb
+1. notebooks/01_eda.ipynb
+2. notebooks/02_baseline_dummy_logreg.ipynb
+3. notebooks/03_mlp_pytorch.ipynb
+4. notebooks/04_mlp_training_early_stopping.ipynb
+5. notebooks/05_compare_mlp_baselines.ipynb
+6. notebooks/06_tradeoff_custo_fp_fn.ipynb
 
-Passos:
+## O que cada notebook entrega
 
-1. Abrir o notebook.
-2. Executar as células em ordem (Run All).
-3. Confirmar que o arquivo abaixo foi gerado:
-	- data/Telco_customer_churn_ready.csv
+### 01_eda.ipynb
 
-Esse arquivo é a saída tratada/codificada usada pelo notebook de baseline.
+- Carrega e analisa os dados brutos.
+- Gera o dataset tratado em data/Telco_customer_churn_ready.csv.
 
-### 3) Executar o notebook de baseline
+### 02_baseline_dummy_logreg.ipynb
 
-Arquivo:
+- Treina DummyClassifier e Regressão Logística.
+- Registra experimentos base no MLflow.
 
-- notebooks/02_baseline_dummy_logreg.ipynb
+### 03_mlp_pytorch.ipynb
 
-Passos:
+- Implementa MLP em PyTorch (arquitetura + treino básico).
 
-1. Abrir o notebook.
-2. Executar as células em ordem.
-3. Verificar:
-	- tabela de métricas dos modelos
-	- confirmação de registro dos experimentos no MLflow
+### 04_mlp_training_early_stopping.ipynb
 
-Resultado esperado:
+- Treino da MLP com validação e early stopping.
+- Logging de treino no MLflow.
 
-- Regressão Logística deve superar o DummyClassifier nas métricas principais (especialmente ROC-AUC e F1).
+### 05_compare_mlp_baselines.ipynb
 
-## Como executar o MLflow localmente
+- Compara MLP vs modelos lineares/árvores com múltiplas métricas.
+- Carrega MLP do MLflow (do notebook 04).
+- Consolida o item 5: registra todos os modelos em experimento único no MLflow.
+- Gera o resumo de auditoria em notebooks/mlflow_resumo_experimentos_etapa2.csv.
 
-### 1) Iniciar a interface visual
+### 06_tradeoff_custo_fp_fn.ipynb
 
-Na raiz do projeto, execute:
+- Avalia trade-off de custo com varredura de threshold.
+- Reutiliza modelo registrado no MLflow.
+
+## Como rodar o MLflow local
+
+Com o ambiente virtual ativo, execute na raiz:
 
 ```bash
 mlflow ui --backend-store-uri sqlite:///notebooks/mlflow.db --default-artifact-root ./notebooks/mlruns --host 127.0.0.1 --port 5000
 ```
 
-Abra no navegador:
+Acesse:
 
 - http://127.0.0.1:5000
 
-### 2) Onde visualizar os resultados
+Experimentos relevantes atualmente:
 
-Na UI do MLflow:
+- churn-baselines-etapa1
+- MLP-Churn-EarlyStoppingBatching
+- Churn-Etapa2-Comparacao-Modelos
 
-1. Selecione o experimento:
-	- churn-baselines-etapa1
-2. Vá para a aba Runs para ver as execuções.
-3. Clique em uma run para inspecionar:
-	- parâmetros
-	- métricas
-	- artefatos (modelo e dataset)
+## Resultado consolidado já disponível
 
-Importante:
+O arquivo notebooks/mlflow_resumo_experimentos_etapa2.csv contém o consolidado de auditoria do comparativo da Etapa 2:
 
-- A aba Models pode aparecer vazia se não houver modelo registrado no registry.
-- Para acompanhar os treinamentos desta etapa, use a aba Runs.
+- modelo
+- família
+- run_id
+- model_uri
+- pr_auc
+- roc_auc
+- f1
+- recall
+- precision
 
-## Troubleshooting (problemas comuns)
+## Validação mínima (obrigatória)
 
-### Problema: UI abre, mas não mostra execuções
-
-Causa mais comum:
-
-- O notebook e o comando da UI estão apontando para bancos diferentes.
-
-Como resolver:
-
-1. Execute o notebook de baseline novamente para registrar as runs no banco local correto.
-2. Garanta que o comando da UI seja exatamente:
+Antes de considerar alterações como prontas:
 
 ```bash
-mlflow ui --backend-store-uri sqlite:///notebooks/mlflow.db --default-artifact-root ./notebooks/mlruns --host 127.0.0.1 --port 5000
+ruff check
+pytest
 ```
 
-3. Recarregue a página e selecione o experimento churn-baselines-etapa1.
+## Troubleshooting
 
-### Problema: arquivo tratado não encontrado
+### 1) MLflow UI abre, mas sem runs esperadas
+
+Causa comum:
+
+- comando da UI apontando para outro backend/artifact store.
+
+Correção:
+
+1. Reexecutar os notebooks que registram runs (principalmente 04 e 05).
+2. Confirmar uso do comando do MLflow exatamente como neste README.
+3. Atualizar a página e selecionar o experimento correto.
+
+### 2) Erro de dataset não encontrado
 
 Mensagem típica:
 
-- Arquivo tratado do EDA não encontrado.
+- arquivo Telco_customer_churn_ready.csv não encontrado.
 
-Solução:
+Correção:
 
-1. Execute o notebook notebooks/01_eda.ipynb.
-2. Confirme a criação de data/Telco_customer_churn_ready.csv.
-3. Rode novamente notebooks/02_baseline_dummy_logreg.ipynb.
+1. Executar notebooks/01_eda.ipynb.
+2. Confirmar geração de data/Telco_customer_churn_ready.csv.
+3. Executar novamente o notebook que falhou.
 
-## Observações finais
+### 3) Problema de paralelismo no Windows (BrokenProcessPool)
 
-- O projeto está alinhado com a stack do desafio (Python, sklearn, MLflow, notebooks).
-- Para evolução das próximas etapas, mantenha rastreabilidade no MLflow e reprodutibilidade com seed fixa.
+Situação:
+
+- Pode ocorrer em alguns cenários com n_jobs=-1 em modelos sklearn.
+
+Status atual:
+
+- O notebook 05 já está ajustado para n_jobs=1 nos modelos relevantes, visando estabilidade.
+
+### 4) Avisos de serialização no MLflow
+
+Situação:
+
+- O MLflow pode emitir warnings sobre pickle/cloudpickle ao salvar modelos.
+
+Status atual:
+
+- São avisos informativos; o registro das runs e artefatos ocorre normalmente.
+
+## Documentação de apoio
+
+- docs/METRICAS.md
+- docs/TODO.md
+- docs/MELHORIAS_CONTINUAS_ETAPA2.md
+- docs/CHANGELOG.md
+
+## Observações para trabalho em grupo
+
+- Para sincronização técnica, priorize o arquivo notebooks/mlflow_resumo_experimentos_etapa2.csv e os experimentos no MLflow.
+- O item 5 (consolidação de experimentos MLP + ensembles) já está concluído no estado atual do projeto.

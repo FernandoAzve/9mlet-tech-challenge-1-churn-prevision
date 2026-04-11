@@ -7,4 +7,3 @@ jupyter==1.1.1
 mlflow==3.10.1
 matplotlib==3.10.8
 seaborn==0.13.2
-torch==2.2.2
