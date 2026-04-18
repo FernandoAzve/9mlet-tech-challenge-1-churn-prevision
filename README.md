@@ -48,7 +48,7 @@ Status atual da Etapa 2:
 
 Instale localmente:
 
-1. Python 3.10.x
+1. Python 3.11.x
 2. Git
 3. Ambiente virtual (venv)
 
@@ -63,6 +63,13 @@ Dependências do projeto estão em requirements.txt e incluem (versões fixadas)
 - mlflow==3.10.1
 - matplotlib==3.10.8
 - seaborn==0.13.2
+- fastapi==0.115.12
+- uvicorn==0.34.2
+- pydantic==2.11.4
+- httpx==0.28.1
+- pytest==8.3.5
+- ruff==0.11.8
+- pandera==0.22.1
 
 ## Setup rápido
 
@@ -125,6 +132,86 @@ Para reproduzir o estado atual do projeto, execute os notebooks nesta ordem:
 4. notebooks/04_mlp_training_early_stopping.ipynb
 5. notebooks/05_compare_mlp_baselines.ipynb
 6. notebooks/06_tradeoff_custo_fp_fn.ipynb
+
+## API de inferência (Etapa 3)
+
+Esta etapa disponibiliza o modelo sklearn treinado no projeto via FastAPI, com:
+
+- `GET /health`
+- `POST /predict`
+- documentação Swagger automática em `/docs`
+
+### 1) Treinar e salvar o artefato do pipeline
+
+Execute na raiz do projeto, com o ambiente virtual ativo:
+
+```bash
+python -m churn.models.train --output-dir models/sklearn
+```
+
+Isso gera, no mínimo:
+
+- `models/sklearn/churn_pipeline.joblib`
+- `models/sklearn/metadata.json`
+
+### 2) Iniciar a API
+
+Com o ambiente virtual ativo:
+
+```bash
+uvicorn churn.api.main:app --app-dir src --host 127.0.0.1 --port 8000 --reload
+```
+
+Se quiser apontar para outro artefato de modelo, defina a variável de ambiente `CHURN_MODEL_PATH` antes de subir a API.
+
+PowerShell:
+
+```powershell
+$env:CHURN_MODEL_PATH = "models/sklearn/churn_pipeline.joblib"
+uvicorn churn.api.main:app --app-dir src --host 127.0.0.1 --port 8000 --reload
+```
+
+### 3) Abrir documentação interativa (Swagger)
+
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
+
+### 4) Testar endpoints com curl
+
+Health check:
+
+```bash
+curl -X GET "http://127.0.0.1:8000/health"
+```
+
+Predição com payload de negócio (endpoint único `/predict`):
+
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"city": "Tipton",
+		"tenure_months": 2,
+		"monthly_charges": 49.25,
+		"total_charges": 91.1,
+		"internet_service": "DSL",
+		"contract": "Month-to-month",
+		"payment_method": "Electronic check",
+		"threshold": 0.5
+	}'
+```
+
+### 5) Rodar testes da API
+
+```bash
+pytest tests/api -v
+```
+
+Para rodar todos os testes do projeto:
+
+```bash
+pytest
+```
 
 ## O que cada notebook entrega
 
@@ -252,6 +339,7 @@ Status atual:
 - docs/TODO.md
 - docs/MELHORIAS_CONTINUAS_ETAPA2.md
 - docs/CHANGELOG.md
+- docs/API.md
 
 ## Observações para trabalho em grupo
 
