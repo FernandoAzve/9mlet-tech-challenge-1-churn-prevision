@@ -92,3 +92,47 @@ def test_predict_rejects_unknown_city(client_with_model):
     )
 
     assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Middleware de latência e logging estruturado
+# ---------------------------------------------------------------------------
+
+
+def test_middleware_adiciona_headers_de_rastreabilidade(client_with_model):
+    response = client_with_model.get("/health")
+
+    assert "x-request-id" in response.headers
+    assert "x-process-time-ms" in response.headers
+
+
+def test_middleware_propaga_request_id_do_cliente(client_with_model):
+    request_id_enviado = "meu-id-de-rastreio-abc123"
+
+    response = client_with_model.get(
+        "/health",
+        headers={"X-Request-ID": request_id_enviado},
+    )
+
+    assert response.headers["x-request-id"] == request_id_enviado
+
+
+def test_middleware_gera_request_id_quando_ausente(client_with_model):
+    response = client_with_model.get("/health")
+
+    request_id = response.headers.get("x-request-id", "")
+    assert len(request_id) == 36  # formato UUID v4: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+
+def test_middleware_process_time_e_numero_valido(client_with_model):
+    response = client_with_model.post(
+        "/predict",
+        json={
+            "tenure_months": 10,
+            "monthly_charges": 75,
+            "total_charges": 750,
+        },
+    )
+
+    process_time = float(response.headers["x-process-time-ms"])
+    assert process_time >= 0.0
