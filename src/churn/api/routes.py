@@ -8,7 +8,7 @@ from churn.api.schemas import (
     PredictionResponse,
     PredictionV2Request,
 )
-from churn.models.predict import get_expected_feature_columns, predict_with_pipeline
+from churn.models.predict import get_expected_feature_columns, predict_with_churn_bundle
 
 router = APIRouter(tags=["churn"])
 
@@ -121,19 +121,22 @@ def health(request: Request) -> HealthResponse:
 def predict(payload: PredictionV2Request, request: Request) -> PredictionResponse:
     model = getattr(request.app.state, "model", None)
     if model is None:
-        raise HTTPException(status_code=503, detail="Model is not loaded. Check CHURN_MODEL_PATH.")
+        raise HTTPException(
+            status_code=503,
+            detail="Modelo não carregado. Treine o bundle e defina CHURN_MODEL_BUNDLE_DIR (padrão: models/mlp_bundle).",
+        )
 
     expected_columns = get_expected_feature_columns(model)
     if expected_columns is None:
         raise HTTPException(
             status_code=500,
-            detail="Unable to resolve expected feature columns from the loaded model.",
+            detail="Não foi possível obter as colunas esperadas do bundle.",
         )
 
     features = _build_v2_features(payload=payload, expected_columns=set(expected_columns))
     features_df = pd.DataFrame([features])
-    prediction_df = predict_with_pipeline(
-        pipeline=model,
+    prediction_df = predict_with_churn_bundle(
+        bundle=model,
         features=features_df,
         threshold=payload.threshold,
     )

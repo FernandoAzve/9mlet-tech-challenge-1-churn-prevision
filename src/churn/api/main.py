@@ -8,24 +8,27 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from churn.api.routes import router
-from churn.models.registry import load_pipeline_artifact
+from churn.config import DEFAULT_MLP_BUNDLE_DIR
+from churn.models.registry import load_churn_mlp_bundle
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_MODEL_PATH = "models/sklearn/churn_pipeline.joblib"
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    model_path = Path(os.getenv("CHURN_MODEL_PATH", DEFAULT_MODEL_PATH))
-    app.state.model_path = str(model_path)
+    bundle_dir = Path(os.getenv("CHURN_MODEL_BUNDLE_DIR", str(DEFAULT_MLP_BUNDLE_DIR)))
+    app.state.model_path = str(bundle_dir.resolve())
     app.state.model = None
 
-    if model_path.exists():
-        app.state.model = load_pipeline_artifact(model_path)
-        logger.info("Model loaded successfully from %s", model_path)
+    meta = bundle_dir / "metadata.json"
+    if meta.is_file():
+        app.state.model = load_churn_mlp_bundle(bundle_dir)
+        logger.info("Bundle MLP carregado de %s", bundle_dir)
     else:
-        logger.warning("Model file not found at %s. /predict will return 503.", model_path)
+        logger.warning(
+            "Bundle não encontrado em %s (esperado metadata.json). /predict retornará 503.",
+            bundle_dir,
+        )
 
     yield
 
@@ -33,9 +36,10 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Churn Prediction API",
-        version="0.1.0",
+        version="0.2.0",
         description=(
-            "API de inferencia para previsao de churn com pipeline sklearn treinado no projeto."
+            "API de inferência de churn usando o bundle MLP "
+            "(pré-processador sklearn serializado + rede PyTorch)."
         ),
         lifespan=lifespan,
     )

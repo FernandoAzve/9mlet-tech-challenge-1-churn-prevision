@@ -135,39 +135,39 @@ Para reproduzir o estado atual do projeto, execute os notebooks nesta ordem:
 
 ## API de inferência (Etapa 3)
 
-Esta etapa disponibiliza o modelo sklearn treinado no projeto via FastAPI, com:
+A API FastAPI carrega **apenas o bundle MLP** (pré-processador sklearn serializado + rede PyTorch):
 
 - `GET /health`
 - `POST /predict`
-- documentação Swagger automática em `/docs`
+- documentação Swagger em `/docs`
 
-### 1) Treinar e salvar o artefato do pipeline
+### 1) Treinar e gerar o bundle
 
-Execute na raiz do projeto, com o ambiente virtual ativo:
+Na raiz do projeto, com `PYTHONPATH=src` e o `venv` ativo:
 
-```bash
-python -m churn.models.train --output-dir models/sklearn
+```powershell
+$env:PYTHONPATH="src"
+.\venv\Scripts\python.exe -m churn.models.train --bundle-dir models/mlp_bundle
 ```
 
-Isso gera, no mínimo:
+Opcional: `--skip-mlflow` para não registrar no MLflow.
 
-- `models/sklearn/churn_pipeline.joblib`
-- `models/sklearn/metadata.json`
+Saída em `models/mlp_bundle/`:
+
+- `preprocessor.joblib`
+- `mlp_state.pt`
+- `metadata.json`
 
 ### 2) Iniciar a API
-
-Com o ambiente virtual ativo:
 
 ```bash
 uvicorn churn.api.main:app --app-dir src --host 127.0.0.1 --port 8000 --reload
 ```
 
-Se quiser apontar para outro artefato de modelo, defina a variável de ambiente `CHURN_MODEL_PATH` antes de subir a API.
-
-PowerShell:
+Outra pasta de bundle (opcional):
 
 ```powershell
-$env:CHURN_MODEL_PATH = "models/sklearn/churn_pipeline.joblib"
+$env:CHURN_MODEL_BUNDLE_DIR = "models/mlp_bundle"
 uvicorn churn.api.main:app --app-dir src --host 127.0.0.1 --port 8000 --reload
 ```
 

@@ -1,48 +1,34 @@
+# -*- coding: utf-8 -*-
+"""
+Pré-processamento oficial para o pipeline **MLP + notebooks**.
+
+O fluxo legado (``ColumnTransformer`` + classificador sklearn) foi removido.
+Aqui montamos um único ``sklearn.pipeline.Pipeline`` reprodutível:
+
+1. ``TotalChargesCleaner`` — coluna ``Total Charges`` sempre numérica.
+2. ``FeatureColumnAligner`` — mesma ordem de colunas do treino; faltantes viram 0.
+3. ``StandardScaler`` — média/desvio **aprendidos só no conjunto de treino** (notebook 04).
+
+O dataset esperado é o CSV pronto do EDA (``Telco_customer_churn_ready.csv``), já com one-hot.
+"""
+
 from __future__ import annotations
 
-import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
+
+from churn.features.custom_transformers import FeatureColumnAligner, TotalChargesCleaner
 
 
-def infer_column_groups(features: pd.DataFrame) -> tuple[list[str], list[str]]:
-    numeric_cols = features.select_dtypes(include=["number", "bool"]).columns.tolist()
-    categorical_cols = features.select_dtypes(exclude=["number", "bool"]).columns.tolist()
-    return numeric_cols, categorical_cols
-
-
-def build_preprocessor(
-    features: pd.DataFrame,
-) -> ColumnTransformer:
-    numeric_cols, categorical_cols = infer_column_groups(features)
-
-    numeric_pipeline = Pipeline(
+def build_mlp_preprocessing_pipeline() -> Pipeline:
+    """
+    Retorna o pipeline sklearn que deve ser ``fit`` no treino e salvo em disco
+    junto com a MLP (ver ``ChurnMLPBundle``).
+    """
+    return Pipeline(
         steps=[
-            ("imputer", SimpleImputer(strategy="median")),
-            ("scaler", StandardScaler()),
+            ("clean_total_charges", TotalChargesCleaner()),
+            ("align_features", FeatureColumnAligner()),
+            ("scale", StandardScaler()),
         ]
     )
-
-    categorical_pipeline = Pipeline(
-        steps=[
-            ("imputer", SimpleImputer(strategy="most_frequent")),
-            (
-                "encoder",
-                OneHotEncoder(
-                    handle_unknown="ignore",
-                ),
-            ),
-        ]
-    )
-
-    return ColumnTransformer(
-        transformers=[
-            ("num", numeric_pipeline, numeric_cols),
-            ("cat", categorical_pipeline, categorical_cols),
-        ],
-        remainder="drop",
-        sparse_threshold=0.0,
-    )
-

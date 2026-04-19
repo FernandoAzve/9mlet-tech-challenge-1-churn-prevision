@@ -1,37 +1,21 @@
-from __future__ import annotations
-
-import json
-from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
-
-import joblib
-
-
-def save_pipeline_artifact(
-    pipeline: Any,
-    output_dir: str | Path,
-    artifact_name: str = "churn_pipeline.joblib",
-    metadata: dict[str, Any] | None = None,
-) -> tuple[Path, Path]:
-    out_dir = Path(output_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    model_path = out_dir / artifact_name
-    metadata_path = out_dir / "metadata.json"
-
-    joblib.dump(pipeline, model_path)
-
-    payload = {
-        "artifact_name": artifact_name,
-        "created_at_utc": datetime.now(UTC).isoformat(),
-    }
-    if metadata:
-        payload.update(metadata)
-    metadata_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    return model_path, metadata_path
-
-
-def load_pipeline_artifact(path: str | Path):
-    return joblib.load(Path(path))
-
+# -*- coding: utf-8 -*-
+"""
+Persistência do **único** artefato de produção: pasta do bundle MLP.
+
+Não usamos mais ``churn_pipeline.joblib`` com classificador sklearn.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from churn.models.mlp_bundle import ChurnMLPBundle
+
+
+def load_churn_mlp_bundle(bundle_dir: str | Path) -> ChurnMLPBundle:
+    """
+    Função única para “abrir” o modelo em produção: lê JSON + joblib + pesos PyTorch.
+
+    ``bundle_dir`` é a pasta (ex.: ``models/mlp_bundle``) que contém os três arquivos.
+    """
+    return ChurnMLPBundle.load(bundle_dir)

@@ -1,279 +1,406 @@
-# Documentação final — Etapa 3, Itens 1 e 2 (refatoração + pipeline sklearn)
+# Documentação — Etapa 3 (Itens 1 e 2): pipeline MLP + `src/` + API
 
-## 1. Objetivo e escopo desta entrega
-
-Esta documentação descreve **o que foi implementado** na Etapa 3 do Tech Challenge, **limitando-se aos Itens 1 e 2**:
-
-| Item | Descrição |
-|------|-----------|
-| **1** | Refatoração do projeto em módulos Python sob `src/`, com estrutura clara e responsabilidades separadas. |
-| **2** | Pipeline reprodutível com **scikit-learn** (`Pipeline`, `ColumnTransformer`) e **transformador custom** (`TotalChargesCleaner`), com treino, persistência e inferência fora dos notebooks. |
-
-**Fora de escopo nesta entrega:** testes automatizados (`pytest`, `pandera`), API FastAPI, logging estruturado, middleware, `pyproject.toml`, `Makefile` — permanecem planejados nos itens 3 a 6 do [TODO_ETAPA_3.MD](TODO_ETAPA_3.MD).
+Este documento substitui a versão antiga baseada em **classificador sklearn** (`LogisticRegression` em `churn_pipeline.joblib`). O estado atual do repositório é **um único fluxo de produção**: **pré-processador sklearn serializado** + **MLP PyTorch serializada** + **MLflow** (opcional no CLI) + **API FastAPI** que carrega o **bundle** em disco.
 
 ---
 
-## 2. Resumo executivo do que foi feito
+## 1. Objetivo e escopo (Etapa 3 — itens 1 e 2)
 
-1. **Pacote `churn`** criado em `src/churn/`, importável após adicionar `src` ao `PYTHONPATH` (ou executar a partir da raiz com `python -m` configurado corretamente).
-2. **Camada de dados:** leitura do CSV pronto, resolução de caminho padrão, split estratificado e validação mínima do alvo.
-3. **Camada de features:** pré-processamento com `ColumnTransformer` (numérico + categórico) e transformador custom alinhado ao EDA original (`Total Charges`).
-4. **Camada de pipelines:** montagem de um único `sklearn.pipeline.Pipeline` (limpeza → pré-processamento → estimador).
-5. **Camada de modelos:** treino com métricas no holdout, serialização com **joblib**, metadados em **JSON**, e script de predição em lote a partir de CSV.
-6. **Integração com notebook:** o [notebooks/03_mlp_pytorch.ipynb](../notebooks/03_mlp_pytorch.ipynb) foi **estendido** (células novas) para importar `churn` e instanciar o pipeline sklearn, **sem remover** o fluxo didático PyTorch existente.
+| Item | O que o projeto entrega hoje |
+|------|------------------------------|
+| **1 — Refatoração em módulos** | Pacote `churn` sob `src/churn/` com separação por responsabilidade (`features`, `models`, `api`, `data`, `config`). |
+| **2 — Pipeline reprodutível** | `sklearn.pipeline.Pipeline` com transformadores custom (`TotalChargesCleaner`, `FeatureColumnAligner`) + `StandardScaler`; modelo final **somente** a MLP (`MLPChurn`); persistência em pasta **bundle** (`preprocessor.joblib`, `mlp_state.pt`, `metadata.json`). |
 
-Nada do repositório anterior foi apagado por esta refatoração: notebooks, `data/`, MLflow em `notebooks/` e documentação em `docs/` permanecem como base histórica e de experimentação.
+**Fora do escopo deste documento (mas existem no repo):** notebooks de EDA/baselines (`01`, `02`), MLP didática (`03`), comparação (`05`), trade-off de custo (`06`) — continuam como **experimentação**; o **contrato de deploy** é o descrito aqui.
 
 ---
 
-## 3. Estrutura final de diretórios (`src/churn`)
-
-Árvore lógica do que foi desenvolvido:
+## 2. Visão geral do fluxo atual
 
 ```text
-src/
-└── churn/
-    ├── __init__.py
-    ├── config.py
-    ├── data/
-    │   ├── __init__.py
-    │   ├── io.py              # Caminhos, leitura CSV, split estratificado
-    │   └── schemas.py         # Contrato de dados, validação do alvo, REMOVED_COLUMNS_FROM_RAW
-    ├── features/
-    │   ├── __init__.py
-    │   ├── preprocessing.py   # ColumnTransformer (num + cat)
-    │   └── custom_transformers.py  # TotalChargesCleaner
-    ├── pipelines/
-    │   ├── __init__.py
-    │   └── churn_pipeline.py  # build_churn_pipeline, build_estimator
-    └── models/
-        ├── __init__.py
-        ├── train.py           # train_pipeline + CLI
-        ├── predict.py         # predict_from_csv + CLI
-        ├── registry.py        # joblib dump/load + metadata.json
-        └── evaluate.py        # Métricas de classificação no teste
+Telco_customer_churn_ready.csv (EDA notebook 01)
+        │
+        ▼
+┌───────────────────────────────────────┐
+│  churn.models.train (train_mlp_flow) │
+│  • split 80/20 + 25/75 (≈64/16/20)   │
+│  • fit preprocessor só em X_train      │
+│  • treino MLP + early stopping        │
+│  • MLflow (opcional)                  │
+│  • salva bundle em models/mlp_bundle  │
+└───────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────┐
+│  Inferência                            │
+│  • CLI: churn.models.predict           │
+│  • API: FastAPI + bundle carregado      │
+└───────────────────────────────────────┘
 ```
 
-**Artefatos gerados pelo treino (não versionados por padrão):**
+**Artefatos do bundle (pasta, ex.: `models/mlp_bundle/`):**
 
-```text
-models/sklearn/
-├── churn_pipeline.joblib   # Pipeline completo (fit)
-└── metadata.json           # Parâmetros, contagens, métricas, timestamp UTC
+| Arquivo | Conteúdo |
+|---------|----------|
+| `preprocessor.joblib` | `Pipeline` sklearn: limpeza → alinhamento de colunas → `StandardScaler` |
+| `mlp_state.pt` | `state_dict` da rede PyTorch |
+| `metadata.json` | Colunas, `input_dim`, limiares, hash do CSV, métricas auxiliares, etc. |
+
+---
+
+## 3. Comparação com os notebooks 01, 04 e 06
+
+### 3.1 Notebook `01_eda.ipynb` (dados prontos)
+
+| Aspecto | Notebook 01 | Código em `src/` |
+|--------|-------------|-------------------|
+| Entrada bruta | Excel/CSV cru → limpeza e `get_dummies` | Não repetido em `train.py`; espera-se **`Telco_customer_churn_ready.csv`** já gerado pelo EDA. |
+| Saída | `data/Telco_customer_churn_ready.csv` | `resolve_data_path()` / `DEFAULT_DATA_PATH_CANDIDATES` em `config.py` apontam para o mesmo arquivo. |
+| **Alinhamento** | O treino **depende** do 01 para existir o CSV “ready”. | **Igual em intenção**; o `src` não substitui o EDA, consome o artefato. |
+
+### 3.2 Notebook `04_mlp_training_early_stopping.ipynb` (MLP canônica)
+
+| Aspecto | Notebook 04 | `src/churn/models/train.py` |
+|--------|-------------|------------------------------|
+| Split | `80/20` depois `75/25` do bloco maior, `stratify`, `random_state=42` | Mesma lógica em `_prepare_splits` (DataFrames em vez de só NumPy). |
+| Escala | `StandardScaler` com **fit só no treino** | Equivalente: o passo `scale` do `Pipeline` é ajustado com `preprocessor.fit(x_train)`. |
+| Arquitetura | MLP `input → 64 → 32 → 1` (logits) | `HIDDEN_DIM_1=64`, `HIDDEN_DIM_2=32` em `MLPChurn`. |
+| Treino | `BCEWithLogitsLoss`, `pos_weight`, `Adam`, batch 64 | Mesmos hiperparâmetros no módulo de treino. |
+| Early stopping | Paciência sobre `val_loss` | `PATIENCE = 10`, restaura melhor `state_dict`. |
+| Threshold F1 | Grade em validação | `np.linspace(0.05, 0.95, 37)` + melhor F1 na validação. |
+| MLflow | Experimento `MLP-Churn-EarlyStoppingBatching`, `log_model` PyTorch | Mesmo nome de experimento; `--skip-mlflow` para CI/ambientes sem DB. |
+| **Consolidação extra no `src`** | Só `StandardScaler` solto no notebook | **`TotalChargesCleaner`** + **`FeatureColumnAligner`** + **`StandardScaler`** em um único `Pipeline` serializado; hash SHA-256 do CSV em metadados. |
+
+### 3.3 Notebook `06_tradeoff_custo_fp_fn.ipynb` (negócio / threshold)
+
+| Aspecto | Notebook 06 | `src/` atual |
+|--------|-------------|--------------|
+| Ideia | Ajustar decisão conforme custo FP/FN e reuso de modelo | O **payload** da API expõe `threshold` (0–1); o bundle guarda `threshold_prediction` e `threshold_otimo_f1_validacao` no JSON. |
+| Carga do modelo | Via MLflow URI / caminho local | Produção: **bundle local** (`load_churn_mlp_bundle`); MLflow continua opcional no **treino**. |
+| **Alinhamento** | Mesma **probabilidade** (`sigmoid(logits)`). | **Não** há segundo pipeline só para “custo”; a **consolidação** é: um threshold configurável na API/CLI + metadados do treino. |
+
+---
+
+## 4. Configuração (`src/churn/config.py`)
+
+```python
+DEFAULT_SEED = 42
+TARGET_COLUMN = "Churn Value"
+
+DEFAULT_DATA_PATH_CANDIDATES = (
+    Path("data/Telco_customer_churn_ready.csv"),
+    Path("../data/Telco_customer_churn_ready.csv"),
+)
+
+DEFAULT_MLP_BUNDLE_DIR = Path("models/mlp_bundle")
 ```
 
-Recomenda-se incluir `models/sklearn/*.joblib` e artefados grandes no `.gitignore` se a política do time for não versionar pesos locais.
-
 ---
 
-## 4. Fluxo de dados (visão técnica)
+## 5. Pré-processamento sklearn (`src/churn/features/preprocessing.py`)
 
-```mermaid
-flowchart LR
-  csv["Telco_customer_churn_ready.csv"]
-  io["data.io"]
-  split["stratified_train_test_split"]
-  pipe["churn_pipeline.build_churn_pipeline"]
-  train["models.train.train_pipeline"]
-  art["churn_pipeline.joblib"]
-  pred["models.predict.predict_from_csv"]
+Montagem do **único** `Pipeline` usado antes da MLP:
 
-  csv --> io
-  io --> split
-  split --> train
-  train --> pipe
-  train --> art
-  art --> pred
+```python
+def build_mlp_preprocessing_pipeline() -> Pipeline:
+    return Pipeline(
+        steps=[
+            ("clean_total_charges", TotalChargesCleaner()),
+            ("align_features", FeatureColumnAligner()),
+            ("scale", StandardScaler()),
+        ]
+    )
 ```
 
-1. **Entrada:** CSV gerado pelo EDA (`Telco_customer_churn_ready.csv`), com coluna alvo `Churn Value`.
-2. **Treino:** `fit` apenas no conjunto de treino; métricas avaliadas no conjunto de teste (sem vazamento do split).
-3. **Saída:** arquivo joblib com **todo** o encadeamento (transformações + modelo), reproduzível na inferência.
+---
+
+## 6. Transformadores custom (`src/churn/features/custom_transformers.py`)
+
+Trechos essenciais:
+
+```python
+class TotalChargesCleaner(BaseEstimator, TransformerMixin):
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        X_copy = X.copy()
+        if self.column_name in X_copy.columns:
+            X_copy[self.column_name] = pd.to_numeric(
+                X_copy[self.column_name],
+                errors="coerce",
+            ).fillna(0.0)
+        return X_copy
+
+
+class FeatureColumnAligner(BaseEstimator, TransformerMixin):
+    def fit(self, X: pd.DataFrame, y: Any = None) -> "FeatureColumnAligner":
+        self.columns_ = X.columns.tolist()
+        self.feature_names_in_ = np.array(self.columns_, dtype=object)
+        return self
+
+    def transform(self, X: pd.DataFrame) -> np.ndarray:
+        aligned = X.reindex(columns=self.columns_, fill_value=0)
+        return aligned.to_numpy(dtype=np.float64)
+```
 
 ---
 
-## 5. Descrição detalhada por módulo
+## 7. Treino e MLflow (`src/churn/models/train.py`)
 
-### 5.1 `churn/config.py`
+Docstring do módulo (comandos e `MLFLOW_TRACKING_URI`):
 
-| Símbolo | Função |
-|---------|--------|
-| `DEFAULT_SEED` | Semente padrão (`42`) para reprodutibilidade. |
-| `TARGET_COLUMN` | Nome da coluna alvo: `"Churn Value"`. |
-| `DEFAULT_DATA_PATH_CANDIDATES` | Caminhos relativos tentados na ordem: `data/...`, `../data/...` (compatível com execução na raiz do repo ou a partir de `notebooks/`). |
-| `TrainingConfig` | Dataclass com defaults: `test_size=0.2`, `estimator_name="logistic_regression"`, `output_dir=models/sklearn`, etc. |
+```python
+"""
+Treino reprodutível: **pré-processador sklearn serializado** + **MLP PyTorch** + MLflow + bundle.
 
-### 5.2 `churn/data/schemas.py`
+Baseado no notebook ``04_mlp_training_early_stopping.ipynb`` e no CSV do EDA
+(``01_eda.ipynb``). O bundle grava ``preprocessor.joblib`` (Pipeline sklearn),
+``mlp_state.pt`` e ``metadata.json``.
 
-- **`REMOVED_COLUMNS_FROM_RAW`:** documenta colunas removidas no notebook de EDA (referência de contrato; o CSV *ready* já vem sem elas).
-- **`DatasetContract`:** dataclass com metadados do contrato (alvo, colunas de identificação, colunas pós-evento).
-- **`validate_ready_dataset`:** garante presença do alvo, ausência de nulos no alvo e tipo numérico.
-- **`split_features_target`:** separa `X` (features) e `y` (inteiro).
+Como executar (``venv`` na raiz do repo):
 
-### 5.3 `churn/data/io.py`
+- Windows: ``$env:PYTHONPATH="src"; .\\venv\\Scripts\\python.exe -m churn.models.train``
+- Linux/macOS: ``PYTHONPATH=src ./venv/bin/python -m churn.models.train``
 
-| Função | Descrição |
-|--------|-----------|
-| `resolve_data_path` | Resolve caminho explícito ou primeiro candidato existente. |
-| `load_ready_dataset` | `pd.read_csv` no arquivo resolvido. |
-| `load_features_target` | Carrega e retorna `(features, target)`. |
-| `stratified_train_test_split` | `sklearn.model_selection.train_test_split` com `stratify=target`. |
+Variável: ``MLFLOW_TRACKING_URI`` (padrão ``sqlite:///mlflow.db``).
+"""
+```
 
-### 5.4 `churn/features/custom_transformers.py`
+### 7.1 Constantes e splits
 
-- **`TotalChargesCleaner`:** herda `BaseEstimator` e `TransformerMixin`.
-  - Converte a coluna `Total Charges` para numérico com `errors="coerce"` e preenche ausentes com `0.0`, espelhando a lógica do EDA.
-  - Se a coluna não existir (por exemplo, em variante futura do dataset), o passo é no-op para essa coluna.
+```python
+BATCH_SIZE = 64
+LEARNING_RATE = 0.001
+NUM_EPOCHS_MAX = 50
+PATIENCE = 10
+THRESHOLD_PREDICTION = 0.5
+MLFLOW_EXPERIMENT_NAME = "MLP-Churn-EarlyStoppingBatching"
+```
 
-### 5.5 `churn/features/preprocessing.py`
+```python
+x_temp, x_test, y_temp, y_test = train_test_split(
+    x_all, y_all, test_size=0.2, random_state=random_state, stratify=y_all,
+)
+x_train, x_val, y_train, y_val = train_test_split(
+    x_temp, y_temp, test_size=0.25, random_state=random_state, stratify=y_temp,
+)
+```
 
-- **`infer_column_groups`:** classifica colunas em numéricas/booleanas vs demais (tratadas como categóricas).
-- **`build_preprocessor`:** monta um `ColumnTransformer` com:
-  - **Numérico:** `SimpleImputer(median)` → `StandardScaler`.
-  - **Categórico:** `SimpleImputer(most_frequent)` → `OneHotEncoder(handle_unknown="ignore")`.
-  - `remainder="drop"`, `sparse_threshold=0.0` para saída densa compatível com estimadores downstream.
+### 7.2 Pré-processador + tensores
 
-**Nota sobre o dataset atual:** o arquivo `Telco_customer_churn_ready.csv` produzido pelo notebook de EDA já está em grande parte **numérico one-hot**. Nesse caso, a maioria das colunas cai no ramo numérico; o ramo categórico pode ficar vazio — comportamento aceito pelo scikit-learn nas versões recentes. Se no futuro você passar um DataFrame com colunas `object` antes do encoding, o mesmo código aplicará one-hot corretamente.
+```python
+preprocessor = build_mlp_preprocessing_pipeline()
+preprocessor.fit(x_train)
+x_train_s = preprocessor.transform(x_train).astype(np.float32)
+x_val_s = preprocessor.transform(x_val).astype(np.float32)
+x_test_s = preprocessor.transform(x_test).astype(np.float32)
+```
 
-### 5.6 `churn/pipelines/churn_pipeline.py`
+### 7.3 Loss, otimizador e early stopping (resumo)
 
-| Função | Descrição |
-|--------|-----------|
-| `build_estimator` | Instancia `LogisticRegression` ou `RandomForestClassifier` com `class_weight="balanced"`, `random_state` fixo e `n_jobs=1` (estável no Windows). |
-| `build_churn_pipeline` | Retorna `Pipeline([("clean_total_charges", ...), ("preprocessor", ...), ("estimator", ...)])`. |
+```python
+criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight_tensor)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+# ... loop: train_one_epoch / evaluate; restaurar best_model_state; patience ...
+```
 
-### 5.7 `churn/models/evaluate.py`
+### 7.4 Bundle + MLflow
 
-- **`classification_metrics`:** calcula `accuracy`, `precision`, `recall`, `f1` e, se houver probabilidades, `roc_auc`.
+```python
+bundle = ChurnMLPBundle(
+    preprocessor=preprocessor,
+    model=model.cpu(),
+    feature_columns=feature_columns,
+    threshold_prediction=THRESHOLD_PREDICTION,
+    threshold_otimo_f1_validacao=threshold_otimo_f1,
+    device=torch.device("cpu"),
+)
+bundle_path = bundle.save(bundle_dir, extra_metadata=extra_meta)
+```
 
-### 5.8 `churn/models/registry.py`
+```python
+tracking = os.environ.get("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")
+mlflow.set_tracking_uri(tracking)
+mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+# ... log_param / log_metric ...
+mlflow.pytorch.log_model(model, "model")
+```
 
-- **`save_pipeline_artifact`:** grava `churn_pipeline.joblib` e `metadata.json` (timestamp UTC ISO, hiperparâmetros, métricas, contagens).
-- **`load_pipeline_artifact`:** `joblib.load` — usar apenas com artefatos **confiáveis** (gerados pelo próprio projeto). Carregar pickles de terceiros é prática insegura e vai contra as diretrizes de segurança do repositório.
+### 7.5 CLI
 
-### 5.9 `churn/models/train.py`
-
-- **`train_pipeline(...)`:** orquestra carga, split, `fit`, métricas no teste e salvamento.
-- **CLI:** `python -m churn.models.train` com flags `--data-path`, `--estimator-name`, `--output-dir`, `--test-size`, `--random-state`.  
-  **Requisito:** diretório de trabalho e `PYTHONPATH` devem permitir importar o pacote `churn` (veja seção 7).
-
-### 5.10 `churn/models/predict.py`
-
-- **`predict_from_csv`:** carrega pipeline, lê CSV de **features** (sem coluna alvo), retorna `DataFrame` com `prediction` e `probability_churn`.
-- **CLI:** `--model-path`, `--input-path`, `--output-path`, `--threshold`.
+```python
+parser.add_argument("--data-path", type=str, default=None)
+parser.add_argument("--bundle-dir", type=str, default=str(DEFAULT_BUNDLE_DIR))
+parser.add_argument("--random-state", type=int, default=DEFAULT_SEED)
+parser.add_argument("--mlflow-run-name", type=str, default="train_cli")
+parser.add_argument("--skip-mlflow", action="store_true")
+```
 
 ---
 
-## 6. Contrato de dados esperado
+## 8. Bundle e inferência (`src/churn/models/mlp_bundle.py`)
 
-- **Arquivo:** `Telco_customer_churn_ready.csv` (ou caminho passado explicitamente).
-- **Coluna alvo obrigatória para treino:** `Churn Value` (binária, valores numéricos inteiros).
-- **Features:** todas as demais colunas do CSV após drop do alvo.
-- **Alinhamento com EDA:** o notebook [01_eda.ipynb](../notebooks/01_eda.ipynb) documenta limpeza, encoding e exportação desse arquivo; o módulo `schemas` documenta colunas removidas na fase bruta.
+Nomes dos arquivos no disco:
+
+```python
+_PREPROCESSOR_NAME = "preprocessor.joblib"
+_WEIGHTS_NAME = "mlp_state.pt"
+_METADATA_NAME = "metadata.json"
+```
+
+Carregamento (API e CLI usam `load_churn_mlp_bundle` em `registry.py`, que delega para `ChurnMLPBundle.load`):
+
+```python
+preprocessor = joblib.load(pre_path)
+model = MLPChurn(input_dim=input_dim, hidden_dim_1=hidden_1, hidden_dim_2=hidden_2)
+state = torch.load(state_path, map_location="cpu", weights_only=True)
+model.load_state_dict(state)
+```
+
+Persistência após o treino:
+
+```python
+joblib.dump(self.preprocessor, root / _PREPROCESSOR_NAME)
+torch.save(self.model.state_dict(), root / _WEIGHTS_NAME)
+(root / _METADATA_NAME).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+```
+
+Probabilidade por linha (entrada já alinhada às colunas do treino):
+
+```python
+def predict_proba_positive(self, features: pd.DataFrame) -> np.ndarray:
+    aligned = features.reindex(columns=self.feature_columns, fill_value=0)
+    x_s = self.preprocessor.transform(aligned)
+    x_t = torch.from_numpy(x_s.astype(np.float32, copy=False)).to(self._device)
+    self.model.eval()
+    with torch.no_grad():
+        logits = self.model(x_t)
+        proba = torch.sigmoid(logits).squeeze(-1).cpu().numpy()
+    return np.asarray(proba, dtype=np.float64)
+```
+
+O carregamento na API/CLI passa por `src/churn/models/registry.py`: `load_churn_mlp_bundle(bundle_dir)` → `ChurnMLPBundle.load(bundle_dir)`.
 
 ---
 
-## 7. Como executar (ambiente e comandos)
+## 9. Predição em lote (`src/churn/models/predict.py`)
 
-### 7.1 Pré-requisitos
+```python
+def predict_with_churn_bundle(
+    bundle: ChurnMLPBundle,
+    features: pd.DataFrame,
+    threshold: float = 0.5,
+) -> pd.DataFrame:
+    probabilities = bundle.predict_proba_positive(features)
+    predictions = (probabilities >= threshold).astype(int)
+    return pd.DataFrame({"prediction": predictions, "probability_churn": probabilities})
+```
 
-- Python com dependências do [requirements.txt](../requirements.txt) instaladas (`pandas`, `scikit-learn`, `joblib` transitivo via sklearn, etc.).
-- Arquivo de dados presente em `data/Telco_customer_churn_ready.csv` (ou informe `--data-path`).
+```python
+parser.add_argument("--bundle-dir", type=str, required=True, ...)
+parser.add_argument("--input-path", type=str, required=True)
+parser.add_argument("--output-path", type=str, default="predictions.csv")
+parser.add_argument("--threshold", type=float, default=0.5)
+```
 
-### 7.2 Variável `PYTHONPATH`
+---
 
-Na raiz do repositório (pasta que contém `src/`):
+## 10. API FastAPI
 
-**Windows (PowerShell):**
+### 10.1 Carregamento do bundle (`src/churn/api/main.py`)
+
+```python
+bundle_dir = Path(os.getenv("CHURN_MODEL_BUNDLE_DIR", str(DEFAULT_MLP_BUNDLE_DIR)))
+meta = bundle_dir / "metadata.json"
+if meta.is_file():
+    app.state.model = load_churn_mlp_bundle(bundle_dir)
+```
+
+### 10.2 Rotas (`src/churn/api/routes.py`)
+
+- `GET /health` — `model_loaded`, `model_path`.
+- `POST /predict` — monta `DataFrame` de uma linha a partir do Pydantic, chama `predict_with_churn_bundle`.
+
+```python
+features = _build_v2_features(payload=payload, expected_columns=set(expected_columns))
+features_df = pd.DataFrame([features])
+prediction_df = predict_with_churn_bundle(
+    bundle=model,
+    features=features_df,
+    threshold=payload.threshold,
+)
+```
+
+Validação de entrada: `src/churn/api/schemas.py` (`PredictionV2Request`, campos obrigatórios `tenure_months`, `monthly_charges`, `total_charges`, etc.).
+
+---
+
+## 11. Como usar (passo a passo)
+
+### 11.1 Variáveis de ambiente
+
+| Variável | Função | Padrão |
+|----------|--------|--------|
+| `PYTHONPATH` | Deve incluir `src` para `import churn`. | — |
+| `MLFLOW_TRACKING_URI` | Onde o MLflow grava runs (treino). | `sqlite:///mlflow.db` (no código, se não setada) |
+| `CHURN_MODEL_BUNDLE_DIR` | Pasta do bundle para a API. | `models/mlp_bundle` |
+
+### 11.2 Treinar (Windows PowerShell, `venv` na raiz)
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m churn.models.train
+$env:PYTHONPATH="src"
+.\venv\Scripts\python.exe -m churn.models.train --bundle-dir models/mlp_bundle
 ```
 
-**Linux/macOS:**
-
-```bash
-PYTHONPATH=src python -m churn.models.train
-```
-
-### 7.3 Treinar e salvar artefatos
+Sem MLflow:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m churn.models.train --estimator-name logistic_regression --output-dir models/sklearn
+.\venv\Scripts\python.exe -m churn.models.train --skip-mlflow --bundle-dir models/mlp_bundle
 ```
 
-Opção de estimador: `random_forest`.
-
-Saída padrão: JSON no stdout com `model_path`, `metadata_path` e `metrics`.
-
-### 7.4 Predizer a partir de CSV
-
-O CSV de entrada deve conter **as mesmas colunas de features** usadas no treino (sem `Churn Value`).
+Outro CSV:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m churn.models.predict --model-path models/sklearn/churn_pipeline.joblib --input-path caminho/para/features.csv --output-path predictions.csv --threshold 0.5
+.\venv\Scripts\python.exe -m churn.models.train --data-path caminho\arquivo.csv
 ```
 
----
+### 11.3 Predição em CSV
 
-## 8. Integração com o notebook `03_mlp_pytorch.ipynb`
+```powershell
+$env:PYTHONPATH="src"
+.\venv\Scripts\python.exe -m churn.models.predict `
+  --bundle-dir models/mlp_bundle `
+  --input-path entrada.csv `
+  --output-path saida.csv `
+  --threshold 0.5
+```
 
-Foram adicionadas células ao final do notebook que:
+### 11.4 Subir a API
 
-1. Ajustam `sys.path` para incluir `<raiz_do_projeto>/src`.
-2. Importam `load_features_target` e `build_churn_pipeline`.
-3. Instanciam o pipeline sklearn com `DATA_PATH` já definido nas células anteriores.
+```powershell
+$env:PYTHONPATH="src"
+$env:CHURN_MODEL_BUNDLE_DIR="models/mlp_bundle"
+uvicorn churn.api.main:app --app-dir src --host 127.0.0.1 --port 8000 --reload
+```
 
-Assim, o notebook continua como **laboratório PyTorch** e passa a **referenciar** a mesma base de engenharia que a API e scripts usarão depois, reduzindo divergência entre experimentação e código modular.
-
----
-
-## 9. Relação com o restante do projeto (MLP, MLflow, baselines)
-
-| Componente | Papel após esta entrega |
-|------------|-------------------------|
-| Notebooks 01–06 | Continuam como fonte de EDA, baselines, MLP PyTorch, comparação e trade-off de custo; não foram substituídos. |
-| MLflow em `notebooks/` | Continua registrando experimentos dos notebooks; o pipeline sklearn em `src` pode ser integrado ao MLflow em etapa futura. |
-| MLP PyTorch | Requisito acadêmico do desafio permanece nos notebooks; o pipeline em `src` prioriza **engenharia reprodutível** com sklearn, alinhado ao [GUIA_ETAPA3_ITENS_1_2.md](GUIA_ETAPA3_ITENS_1_2.md). |
-
----
-
-## 10. Aderência às regras do repositório (`.github/` / `.cursor/`)
-
-- **Stack:** uso de `scikit-learn`, `pandas`, `joblib` está alinhado a [`.github/libs/allowed-libs.md`](../.github/libs/allowed-libs.md) e [`.github/context/tech-stack.md`](../.github/context/tech-stack.md).
-- **Estilo:** nomes de código em inglês; documentação de usuário em pt-BR, consistente com [`.github/rules/code-style.md`](../.github/rules/code-style.md).
-- **Segurança:** evitar carregar pickles não confiáveis — alinhado a [`.github/libs/forbidden-libs.md`](../.github/libs/forbidden-libs.md).
+- Swagger: `http://127.0.0.1:8000/docs`
+- Se não existir `metadata.json` no diretório do bundle, `/predict` retorna **503**.
 
 ---
 
-## 11. Rastreabilidade acadêmica
+## 12. Iterações futuras (documentação viva)
 
-Para relatório ou banca, você pode citar:
-
-1. **Objetivo da refatoração:** separar experimentação (notebooks) de artefato reprodutível (`src` + joblib).
-2. **Critério de reprodutibilidade:** mesmo seed, mesmo split estratificado, um único objeto `Pipeline` serializado.
-3. **Evidência:** `metadata.json` com data UTC, hiperparâmetros e métricas no holdout.
+- Se o notebook **06** passar a fixar regras de custo no JSON do bundle, documente aqui os novos campos.
+- Se o pré-processamento ganhar novos passos, atualize a seção 5–6 e o diagrama da seção 2.
 
 ---
 
-## 12. Próximos passos sugeridos (itens 3–6)
+## 13. Documentos relacionados
 
-Documentados em [TODO_ETAPA_3.MD](TODO_ETAPA_3.MD): testes (`pytest`, `pandera`), API FastAPI, logging, middleware de latência, `pyproject.toml`, `ruff`, `Makefile`.
-
----
-
-## 13. Documentação relacionada
-
-| Documento | Conteúdo |
-|-----------|----------|
-| [TODO_ETAPA_3.MD](TODO_ETAPA_3.MD) | Status da Etapa 3 por item. |
-| [GUIA_ETAPA3_ITENS_1_2.md](GUIA_ETAPA3_ITENS_1_2.md) | Guia conceitual leigo + técnico para itens 1 e 2. |
-| [TODO.md](TODO.md) | Roadmap histórico em notebooks (Etapas anteriores). |
-| [METRICAS.md](METRICAS.md) | Métricas e visão de negócio. |
+| Arquivo | Conteúdo |
+|---------|----------|
+| [RELATORIO_MUDANCAS_PIPELINE_MLP_MLFLOW.md](RELATORIO_MUDANCAS_PIPELINE_MLP_MLFLOW.md) | Relatório de mudanças em linguagem acessível. |
+| [API.md](API.md) | Contrato resumido da API. |
+| [METRICAS.md](METRICAS.md) | Métricas técnicas e de negócio (contexto do desafio). |
 
 ---
 
-*Documento gerado para fechamento da documentação da refatoração (Etapa 3 — Itens 1 e 2). Última revisão alinhada à estrutura de código em `src/churn/`.*
+*Documento alinhado ao código em `src/churn/` na versão com bundle MLP + pré-processador sklearn serializado. Atualize este arquivo quando o contrato de artefatos ou os notebooks de referência mudarem.*
