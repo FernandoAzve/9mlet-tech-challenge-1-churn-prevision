@@ -152,6 +152,88 @@ PYTHONPATH=src pytest tests/api/test_api.py -v
 
 ---
 
+# 7. Como testar manualmente (Windows PowerShell)
+ 
+## Opção 1 — Rodar a API localmente e validar manualmente
+ 
+### 1. Entre na pasta do projeto
+ 
+```powershell
+cd C:\Users\User\Documents\Github\9mlet-tech-challenge-1-churn-prevision
+```
+ 
+### 2. Ative o ambiente virtual
+ 
+```powershell
+.\.venv\Scripts\activate
+```
+ 
+### 3. Defina o `PYTHONPATH`
+ 
+```powershell
+$env:PYTHONPATH="src"
+```
+ 
+### 4. Suba a API
+ 
+```powershell
+uvicorn churn.api.main:app --reload
+```
+ 
+### 5. Em outro terminal, envie uma predição
+ 
+```powershell
+cd C:\Users\User\Documents\Github\9mlet-tech-challenge-1-churn-prevision
+.\.venv\Scripts\activate
+ 
+curl.exe -X POST "http://localhost:8000/predict" `
+  -H "Content-Type: application/json" `
+  -H "X-Request-ID: teste-123" `
+  --data-binary "@docs/payloads/payload_04_alto_churn.json" |
+python -m json.tool
+```
+ 
+### Resultado esperado
+ 
+No terminal do `uvicorn`, você verá um log JSON estruturado semelhante a:
+ 
+```json
+{
+  "message": "request_finished",
+  "request_id": "teste-123",
+  "method": "POST",
+  "route": "/predict",
+  "status_code": 200,
+  "duration_ms": 12.847
+}
+```
+ 
+### 6. Validar headers de observabilidade
+ 
+```powershell
+curl.exe -i "http://localhost:8000/health"
+```
+ 
+Verifique no retorno:
+ 
+```
+X-Request-ID: ...
+X-Process-Time-Ms: ...
+```
+ 
+---
+ 
+# 8. Como rodar os testes automatizados (Windows PowerShell)
+ 
+```powershell
+cd C:\Users\User\Documents\Github\9mlet-tech-challenge-1-churn-prevision
+.\.venv\Scripts\activate
+$env:PYTHONPATH="src"
+pytest tests/api/test_api.py -v
+```
+ 
+---
+
 ## 7. Documentação relacionada
 
 - [docs/API.md](API.md) — Contrato dos endpoints `/health` e `/predict`
@@ -159,3 +241,4 @@ PYTHONPATH=src pytest tests/api/test_api.py -v
 - `src/churn/api/logging_config.py` — Implementação do formatter JSON
 - `src/churn/api/middleware.py` — Implementação do middleware de latência
 - `src/churn/api/middleware.py` — Implementação do middleware de latência
+
