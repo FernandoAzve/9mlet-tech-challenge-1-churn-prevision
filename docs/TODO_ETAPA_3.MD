@@ -78,7 +78,7 @@ Este documento segue o padrão do `docs/TODO.md` e separa os TODOs por tarefa, p
 
 | Campo          | Valor |
 | -------------- | ----- |
-| **Status**     | Pendente |
+| **Status**     | Concluído |
 | **Entregável** | Projeto com configuração centralizada de ferramentas e comandos padronizados para desenvolvimento. |
 | **Escopo**     | Criar `pyproject.toml` com configuração mínima necessária, centralizar regras do `ruff`, e adicionar `Makefile` com alvos ao menos para `lint`, `test` e `run` da API. |
 

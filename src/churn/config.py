@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 DEFAULT_SEED = 42
 TARGET_COLUMN = "Churn Value"
 

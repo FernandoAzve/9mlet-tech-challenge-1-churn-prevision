@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "churn-prediction"
+version = "0.2.0"
+description = "API de previsão de churn usando MLP PyTorch"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "torch==2.6.0",
+    "pandas==2.3.3",
+    "numpy==1.26.4",
+    "scikit-learn==1.7.2",
+    "mlflow==3.10.1",
+    "fastapi==0.115.12",
+    "uvicorn==0.34.2",
+    "pydantic==2.11.4",
+    "httpx==0.28.1",
+    "pytest==8.3.5",
+    "ruff==0.11.8",
+    "pandera==0.22.1",
+    "joblib==1.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-cov",
+    "matplotlib==3.10.8",
+    "seaborn==0.13.2",
+    "jupyter==1.1.1",
+    "openpyxl==3.1.5",
+]
+
+[tool.ruff]
+# Configuração básica para projeto acadêmico
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+# Regras básicas de qualidade de código
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by formatter
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebooks são arquivos de exploração acadêmica - mais permissivos
+"notebooks/*.ipynb" = ["E", "W", "F", "I", "B", "C4", "UP"]
+# Permite redefinições em notebooks (comum em exploração)
+"notebooks/**/*.ipynb" = ["F811"]
+
+[tool.pytest.ini_options]
+# Configuração básica do pytest
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]

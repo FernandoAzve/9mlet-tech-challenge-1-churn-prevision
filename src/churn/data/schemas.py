@@ -6,7 +6,6 @@ import pandas as pd
 
 from churn.config import TARGET_COLUMN
 
-
 REMOVED_COLUMNS_FROM_RAW = (
     "CustomerID",
     "Count",

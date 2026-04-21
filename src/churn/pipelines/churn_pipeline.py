@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Compatibilidade com notebooks que importam ``build_churn_pipeline``.
 
@@ -9,8 +8,6 @@ levantam erro se alguém esperar ``predict_proba`` de um pipeline completo sklea
 """
 
 from __future__ import annotations
-
-from typing import Any
 
 import pandas as pd
 from sklearn.pipeline import Pipeline

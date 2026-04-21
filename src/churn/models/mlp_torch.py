@@ -1,18 +1,9 @@
-# -*- coding: utf-8 -*-
+
 """
 MLP PyTorch para churn (notebook 04): logits, sigmoid na avaliação, BCEWithLogitsLoss no treino.
 """
 
-from __future__ import annotations
-
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim
-from torch.utils.data import DataLoader
-
-
-class MLPChurn(nn.Module):
+from __future__ import annotationsimport numpy as npimport torchimport torch.nn as nnimport torch.optimfrom torch.utils.data import DataLoaderclass MLPChurn(nn.Module):
     """
     Rede feedforward simples: cada camada mistura linearmente os neurônios e aplica ReLU
     (ativação não linear). A última camada devolve um único número bruto (logit), não probabilidade.

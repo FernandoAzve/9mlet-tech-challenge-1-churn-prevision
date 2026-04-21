@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 Treino reprodutível: **pré-processador sklearn serializado** + **MLP PyTorch** + MLflow + bundle.
 
@@ -14,38 +14,7 @@ Como executar (``venv`` na raiz do repo):
 Variável: ``MLFLOW_TRACKING_URI`` (padrão ``sqlite:///mlflow.db``).
 """
 
-from __future__ import annotations
-
-import argparse
-import hashlib
-import json
-import os
-from copy import deepcopy
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import torch
-import torch.nn as nn
-from sklearn.metrics import (
-    accuracy_score,
-    average_precision_score,
-    confusion_matrix,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-)
-from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, TensorDataset
-
-from churn.config import DEFAULT_MLP_BUNDLE_DIR, DEFAULT_SEED, TARGET_COLUMN
-from churn.data.io import resolve_data_path
-from churn.features.preprocessing import build_mlp_preprocessing_pipeline
-from churn.models.mlp_bundle import ChurnMLPBundle
-from churn.models.mlp_torch import MLPChurn, evaluate, train_one_epoch
-
-# ---------------------------------------------------------------------------
+from __future__ import annotationsimport argparseimport hashlibimport jsonimport osfrom copy import deepcopyfrom pathlib import Pathimport numpy as npimport pandas as pdimport torchimport torch.nn as nnfrom sklearn.metrics import (    accuracy_score,    average_precision_score,    confusion_matrix,    f1_score,    precision_score,    recall_score,    roc_auc_score,)from sklearn.model_selection import train_test_splitfrom torch.utils.data import DataLoader, TensorDatasetfrom churn.config import DEFAULT_MLP_BUNDLE_DIR, DEFAULT_SEED, TARGET_COLUMNfrom churn.data.io import resolve_data_pathfrom churn.features.preprocessing import build_mlp_preprocessing_pipelinefrom churn.models.mlp_bundle import ChurnMLPBundlefrom churn.models.mlp_torch import MLPChurn, evaluate, train_one_epoch# ---------------------------------------------------------------------------
 # Valores fixos do experimento (fáceis de ajustar num único lugar)
 # ---------------------------------------------------------------------------
 # Quantas linhas de dados a rede vê por vez antes de atualizar os pesos.
@@ -288,8 +257,7 @@ def train_mlp_flow(
 
     mlflow_run_id: str | None = None
     if not skip_mlflow:
-        import mlflow
-        import mlflow.pytorch
+        import mlflow        import mlflow.pytorch
 
         # URI do servidor ou arquivo SQLite onde o MLflow guarda histórico.
         tracking = os.environ.get("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")

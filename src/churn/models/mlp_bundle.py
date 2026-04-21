@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 Pacote de inferência: **pré-processador sklearn serializado** + **MLP PyTorch** + metadados.
 
@@ -10,21 +10,7 @@ Contrato de pasta (deploy):
 O MLflow continua registrando só a rede PyTorch; o pré-processador fica sempre no bundle local.
 """
 
-from __future__ import annotations
-
-import json
-from pathlib import Path
-from typing import Any
-
-import joblib
-import numpy as np
-import pandas as pd
-import torch
-from sklearn.pipeline import Pipeline
-
-from churn.models.mlp_torch import MLPChurn
-
-# Nomes fixos dos arquivos dentro da pasta do bundle (não renomeie à mão em produção).
+from __future__ import annotationsimport jsonfrom pathlib import Pathfrom typing import Anyimport joblibimport numpy as npimport pandas as pdimport torchfrom sklearn.pipeline import Pipelinefrom churn.models.mlp_torch import MLPChurn# Nomes fixos dos arquivos dentro da pasta do bundle (não renomeie à mão em produção).
 _PREPROCESSOR_NAME = "preprocessor.joblib"
 _WEIGHTS_NAME = "mlp_state.pt"
 _METADATA_NAME = "metadata.json"
@@ -66,7 +52,7 @@ class ChurnMLPBundle:
         self.model.eval()
 
     @classmethod
-    def load(cls, bundle_dir: str | Path) -> "ChurnMLPBundle":
+    def load(cls, bundle_dir: str | Path) -> ChurnMLPBundle:
         """
         Carrega os três arquivos da pasta e monta rede com a mesma arquitetura salva no JSON.
         """

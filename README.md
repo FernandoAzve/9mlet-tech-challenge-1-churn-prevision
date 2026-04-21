@@ -213,6 +213,28 @@ Para rodar todos os testes do projeto:
 pytest
 ```
 
+## Comandos rápidos para qualidade e automação
+
+### Lint (verificação de estilo)
+
+```bash
+ruff check .
+```
+
+### Rodar todos os testes
+
+```bash
+pytest
+```
+
+### Rodar a API localmente
+
+```bash
+uvicorn src.churn.api.main:app --reload
+```
+
+> **Nota:** No Windows, use os comandos acima diretamente. O Makefile é opcional e funciona nativamente apenas em Linux/macOS.
+
 ## O que cada notebook entrega
 
 ### 01_eda.ipynb
