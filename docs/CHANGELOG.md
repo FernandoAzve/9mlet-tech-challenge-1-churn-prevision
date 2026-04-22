@@ -1,5 +1,14 @@
 # CHANGELOG da Sessão
 
+## Unificação do pipeline (MLP + pré-processador sklearn)
+
+- Removido o fluxo legado com classificador sklearn final (`churn_pipeline.joblib` / `pipelines/churn_pipeline.py`).
+- Fluxo único: `preprocessor.joblib` (Pipeline: limpeza + alinhamento + `StandardScaler`) + `mlp_state.pt` + `metadata.json`.
+- Treino: `python -m churn.models.train`; predição: `python -m churn.models.predict`; API: carrega pasta do bundle via `CHURN_MODEL_BUNDLE_DIR`.
+- Documentação atualizada: `docs/RELATORIO_MUDANCAS_PIPELINE_MLP_MLFLOW.md`, `docs/API.md`, trecho da API no `README.md`.
+
+---
+
 Data: 11/04/2026
 Projeto: 9mlet-tech-challenge-1-churn-prevision
 
