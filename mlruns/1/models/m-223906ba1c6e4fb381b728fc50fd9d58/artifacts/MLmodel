@@ -1,0 +1,23 @@
+artifact_path: file:///D:/Projetos/FIAP/Tech Challenge 01/9mlet-tech-challenge-1-churn-prevision/mlruns/1/models/m-223906ba1c6e4fb381b728fc50fd9d58/artifacts
+flavors:
+  python_function:
+    config:
+      device: null
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pytorch
+    pickle_module_name: mlflow.pytorch.pickle_module
+    python_version: 3.11.9
+  pytorch:
+    code: null
+    model_data: data
+    pytorch_version: 2.6.0+cpu
+mlflow_version: 3.10.1
+model_id: m-223906ba1c6e4fb381b728fc50fd9d58
+model_size_bytes: 309840
+model_uuid: m-223906ba1c6e4fb381b728fc50fd9d58
+prompts: null
+run_id: 8e9b0e545fb749abb49999df88b1ec00
+utc_time_created: '2026-04-18 23:45:29.900524'
