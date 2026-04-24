@@ -18,7 +18,40 @@ class PredictionResponse(BaseModel):
 
 
 class PredictionV2Request(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "city": "San Francisco",
+                    "zip_code": 94123,
+                    "latitude": 37.800254,
+                    "longitude": -122.436975,
+                    "tenure_months": 16,
+                    "monthly_charges": 75.4,
+                    "total_charges": 1189.4,
+                    "cltv": 5432,
+                    "gender": "Male",
+                    "senior_citizen": False,
+                    "partner": True,
+                    "dependents": False,
+                    "phone_service": True,
+                    "multiple_lines": "Yes",
+                    "internet_service": "Fiber optic",
+                    "online_security": "No",
+                    "online_backup": "No",
+                    "device_protection": "No",
+                    "tech_support": "No",
+                    "streaming_tv": "No",
+                    "streaming_movies": "No",
+                    "contract": "Month-to-month",
+                    "paperless_billing": True,
+                    "payment_method": "Electronic check",
+                    "threshold": 0.5
+                }
+            ]
+        }
+    )
 
     city: str | None = Field(default=None, description="Customer city used by the trained city one-hot columns.")
     zip_code: int | None = Field(default=None, ge=0)
