@@ -1,0 +1,369 @@
+(0:00 - 1:15)
+Está documentado, começando pela primeira parte. Por que raios documentar é importante? Eu diria inclusive que documentar, a documentação, e não sou só eu que digo isso, tem algumas pessoas que corroboram com isso que eu vou falar, que a documentação é uma das partes, se não a parte mais importante dentro de um projeto de Machine Learning. Por que? Diferente de um software, um projeto de software qualquer, onde obviamente existem definições que são importantes e devem ser documentadas, mas os projetos de Machine Learning, principalmente, o gosto do trabalho, o importante do trabalho, são as decisões que foram tomadas antes mesmo de a gente definir qual modelo usar, como treinar esse modelo, treinar esse modelo e etc.
+
+(1:16 - 2:28)
+São as definições de tipos de dados que a gente vai usar, que vão interferir no tipo de modelo que a gente vai decidir treinar, ou tipos de modelos que a gente vai decidir treinar para comparar, como a gente vai servir esses modelos, como fazer a manutenção e observabilidade desses modelos, da acurácia, das métricas que a gente vai definir, da efetividade desse modelo em produção, como acompanhar se está sendo efetivo, o que fazer quando isso deixar de ser efetivo. Então, o projeto de Machine Learning, muitas das decisões e pontos relevantes e importantes que a gente acaba tomando, acontecem fora do código, fora do modelo, fora do que a gente acaba codificando. E por isso a documentação se torna super relevante e importante, porque a maneira que a gente tem de documentar isso é para nós do futuro, quanto outras pessoas e etc.
+
+(2:29 - 4:30)
+Aqui tem um, esse capítulo começa falando um pouquinho de um exemplo sobre uma empresa onde ela tinha um modelo de previsão de revenda de imóveis, e por conta de alguns problemas na parte dos modelos, ela acabou sofrendo um prejuízo de mais de meio milhão de dólares, ou de 181 milhões, teve que fazer layoff e acabou vendo suas ações caindo. E aqui no texto eu argumento que um dos pontos de falha, que permitiu que essa falha no modelo acontecesse, foi a falta de documentação, porque por não haver uma documentação clara de como acompanhar esses modelos, métricas a serem acompanhadas, a forma como esse modelo foi treinado, não perceberam que aconteceu um drift do modelo, dos dados que ele estava sendo inferido, e isso acabou que foi pro ar e continuou durante um tempo no ar o modelo que era muito abaixo do esperado em questão de performance, em questão de métrica. Então o fato de não ter uma documentação documentando como acompanhar esses drifts e o que fazer no caso de um drift detectado, é que demoraram para perceber e quando viram já tinha feito um certo estrago.
+
+(4:30 - 5:18)
+Então a documentação não é só um papel trecho, algo opcional, um penduricalho que a gente coloca, um enfeite, ele é um entregável tão importante quanto a modelagem que a gente vai fazer, tão importante quanto o sistema que vai servir esse modelo. Então documentação é mega importante. Aqui eu trago algumas pesquisas e alguns estudos que vão falar um pouquinho sobre a importância da documentação.
+
+(5:19 - 6:01)
+Tem esse estudo aqui feito pelo pessoal de Stanford, da Hugging Face, que eles examinaram 32 mil repositórios lá do Hugging Face e os model cards desse modelo. Então para quem não sabe, tem aquele site que é um repositório principalmente de modelos de linguagem, mas você consegue colocar ali outros modelos, modelos por exemplo de árvore para problemas de dados tabulares. Esse site chamado Hugging Face, que é como se fosse um GitHub para modelos, eles têm lá centenas de milhares de modelos de repositórios com esses modelos treinados.
+
+(6:02 - 6:53)
+E esses modelos têm documentações, eles analisaram cerca de 32 mil documentações desses modelos e eles perceberam que de todos os modelos hospedados no Hugging Face, menos da metade tinham model card ou algum tipo de documentação sobre aquele modelo. E dos modelos, então desses 44% que tinham algum tipo de documentação, eu acho que tem algum microfone aberto e eu acho que está com ruído, deixa eu só dar uma olhada aqui. Está com interferência, beleza.
+
+(6:55 - 7:53)
+Então desses 44% de modelos que são hospedados no Hugging Face, esses modelos que estão documentados correspondem a 90% do tráfego de download, ou seja, aqueles modelos que têm uma documentação, eles acabam sendo mais utilizados, ou seja, são feitos mais downloads desses modelos. Porque obviamente é muito mais fácil, seguro, atraente, poderia dizer, utilizar e baixar um modelo que está documentado do que um modelo que não está documentado. Por quê? Um modelo que não está documentado, você não sabe o que ele faz, você não sabe, enfim, para que ele serve, como ele foi treinado, quais são as características daquele modelo e por consequência você não vai baixar ou utilizar aquele modelo.
+
+(7:53 - 9:05)
+Já os que são documentados, são muito mais fáceis você identificar esse tipo de informações, e detectar aqueles modelos que servem para o seu problema, para a sua necessidade e baixá-los e utilizá-los. Então, documentação é importante em todos os casos. Aqui, nessa parte, eu argumento que a documentação é o que eu estou chamando de infraestrutura cognitiva, diferente de um código de um projeto de engenharia de software, onde você tem um código e o sistema faz aquilo que o código se propõe a fazer, a entregar, então se você tem ali um código, sei lá, uma calculadora, que calcula alguma coisa, uma calculadora padrão, você vai ter ali no código, fonte, função para somar, função para subtrair, função para dividir.
+
+(9:05 - 9:42)
+Pelo código você consegue inferir muitas coisas, claro que algumas não necessariamente, outras você não sabe muito bem porque está sendo feito desse jeito, mas você consegue inferir muita coisa a partir do código. Quando a gente vai para modelos de machine learning, isso não fica claro. Mesmo olhando o código, a gente não tem claro como esse modelo foi treinado, com que dados ele foi treinado, para que compenso ele foi treinado, o que ele espera como input, ele vai oferecer como output, quais são as limitações, quais são as características.
+
+(9:43 - 11:14)
+Se a gente está falando de um modelo que é simplesmente o binário ali, um modelo já treinado, então um ponto pico da vida, a gente tem muito menos informação, a gente sabe talvez no máximo a arquitetura que aquele modelo é, mas eu não sei como ele foi treinado, para que ele foi treinado, o que ele está fazendo, enfim, é muito mais difícil fazer essas inferências. Então, a documentação passa a ser um pilar fundamental, tanto para a manutenção desse sistema, quanto para a utilização dele por outras pessoas. Aqui eu trago alguns exemplos de problemas que aconteceram em produção, não necessariamente, obviamente, a falta de documentação foi a raiz, mas se houvesse talvez uma documentação bem feita, estruturada, ou a cultura de se fazer boas documentações, talvez alguns problemas que aconteceram, que foram explodir, estourar em produção, poderiam ter sido identificados entre esses modelos e sistemas e irem ver a luz do dia.
+
+(11:14 - 13:48)
+Aqui tem, por exemplo, o caso lá do Google Fotos, 11 anos atrás, onde ele acabava rotulando pessoas pretas e pessoas negras como gorilas, e na época isso foi uma polêmica, com razão, talvez se tivesse uma documentação do dataset, aquele modelo que foi treinado, bem feita, atualizada, ou que as pessoas envolvidas tivessem analisado essas documentações, se elas existiram, talvez eles percebessem que o dataset que foram treinados tivesse uma pouca, fossem se balanceado em questão de representatividade, foi treinado com muito mais pessoas brancas do que pessoas pardas ou pretas, e poderia ter essa questão de classificação errada de certas imagens, e aqui no caso de pessoas pretas, e não só classificar errado, como classificar como gorilas, que é algo totalmente abominável. E aqui tem outros casos de outras empresas, em outros momentos, que vão sofrer dessa mesma questão, que no CERN, não somente o problema está na falta da documentação, mas a falta de uma documentação bem feita, uma cultura de manutenção dessa documentação e acompanhamento dessa documentação, poderia ter evitado algumas dores de cabeça. No caso aqui, na Amazon, o sistema de recrutamento que acabava penalizando mulheres no currículo simplesmente por serem mulheres, então, novamente, se houvesse uma documentação sobre o dataset que foi treinado, poderiam ver que talvez a disposição de gênero poderia ser um risco a ser considerado, que a questão do gênero poderia ser uma feature que estava sendo considerada, poderia ser um risco.
+
+(13:50 - 15:38)
+Mesma coisa aqui, no caso, o Apple Card, que oferecia limites menores para mulheres, a questão do modelo da Zillow no setor imobiliário, que eu comentei no começo, e até o caso mais recente, em 2024, onde um tribunal do Canadá, não sei se foi exatamente um tribunal do Canadá, mas eu acredito que sim, que responsabilizou a Air Canada, porque um chatbot ali no atendimento acabou passando informações erradas para as pessoas. Enfim, aqui tem alguns exemplos relacionados a isso. Então, se tivesse uma documentação citando, por exemplo, que esse tema foi treinado com os dados X funcionando dentro do envelope, ou seja, dentro dos limites Y e falha nas situações Z, W, se talvez tivesse a documentação, ou mesmo que não houvesse a documentação, mas se houvesse uma cultura de documentar, talvez eles fossem obrigados a passar por essas questões e eles iriam acabar avaliando dentro das circunstâncias, quais são os limites do modelo, quais são os possíveis riscos e inversos, etc.
+
+(15:41 - 21:18)
+Beleza, então, quando a gente está falando de documentação, a gente está falando principalmente de três pessoas. A gente está falando que essa documentação, o público-alvo, pode ser você do futuro, então, você vai em algum momento, talvez, deparar de volta com esse projeto, com esse modelo e você, às vezes, vai precisar fazer alguma manutenção, fazer algum ajuste, implementar alguma nova feature, repreendar esse modelo, e se você não tem uma boa documentação, talvez daqui quatro, cinco, seis meses, quando você voltar para esse projeto, para esse modelo, às vezes você não vai lembrar o porquê você teve que usar um learning rate de 3 elevado a menos 4, em vez de 1 elevado a menos 3, ou você não vai lembrar se determinada feature, você usou um standard scale, um max scale, ou porque você usou um max ao invés de um standard, por exemplo, ou porque na hora do treinamento você removeu aqueles clientes que tem determinada feature maior do que determinado valor, porque você removeu isso do treino. Na hora que a gente está desenvolvendo o modelo, testando, treinando, etc., algumas decisões são muito claras e muito óbvias, mas depois de dois, três, quatro, meio ano, um ano, sem contato com aquele contexto, com aquele problema, com aquele código, algumas decisões podem não ficar tão claras. 
+
+E para isso tem um tipo de documentação que chamam de ADR, que são registros de descritação de arquitetura. Isso é usado já há um bom tempo na área de engenharia de software, nos últimos tempos, nos últimos um ano, dois, talvez, isso voltou bem forte, principalmente por conta do advento do famigerado VibeCode, que é uma forma de você documentar decisões de arquitetura, ou decisões de projetos, decisões técnicas que foram tomadas por algum motivo. Geralmente é um documento de uma página, um markdown, onde você detalha, descreve, documenta determinadas decisões que foram tomadas. 
+
+Então, por exemplo, escolhemos um modelo com arquitetura MLP de três camadas em vez de um modelo de ADR e XGBoost, porque o time precisava servir o modelo com TorchScript no Edge. Então, como por algum motivo precisava investir tecnologia em Edge devices, ou seja, em smartphones, Apple Watch, Raspberry, etc. Resolveram que MLP funcionava melhor do que XGBoost nesse cenário, então optaram por um MLP de três camadas, porque é menor e etc. 
+
+Isso está registrado, se talvez você não tivesse esse registro, daqui um ano você vai voltar e aí você do futuro vai se perguntar, por que cargas d'água estamos usando uma MLP com três camadas apenas? Por que não uma MLP com 20 camadas? Por que não uma MLP com XGBoost? E nesse tipo de documentação, por exemplo, você consegue entender que foi cogitado usar uma das duas arquiteturas e optaram pela MLP por X motivo. Então, é uma forma de documentação. O José perguntou aqui no chat. 
+
+Professor, para as entregas das documentações, podemos adotar entrega no formato Markdown? Sim. Então, hoje em dia, principalmente por conta de LLMs, Markdown se tornou default padrão para documentações. Então, priorizem fazer a documentação Markdown. 
+
+Um, porque é simples, é um arquivo de texto, não precisa de nenhum programa, você consegue abrir Markdown em uma torradeira, papel, você consegue ler isso. Fica fácil também para agentes de codificação, LLMs, lerem essa sua documentação e ajudar em alguns casos. O GitHub, naturalmente, outras plataformas de transmitir o suporte, obviamente é o Markdown, é o padrão, é o default, é o que é recomendado. 
+
+Então, não complique. Ao invés de mandar um PDF, um Docs, um, sei lá, um .canva, manda o Markdown. É sempre mais seguro.
+
+(21:19 - 23:35)
+Então, recomendação, sempre usem, principalmente para a documentação do projeto, Markdown. Não vão criar PDF, Word ou qualquer coisa semelhante. A Giovana perguntou, professor, considerando que o projeto no GitHub pode ter vários diretórios, por exemplo, focado na experimentação, outro com API, etc. 
+
+Deveríamos ter um readme para cada diretório ou é melhor ter tudo junto em um único readme na raiz do projeto? A gente vai falar sobre o readme, aí eu volto nesse ponto. Se por acaso eu não voltar, você me lembra, Giovana, mas a gente fala um pouco sobre isso. Então, como que funciona? Para que serve a documentação? Para quem serve essa documentação? Então, você do futuro, colegas, todo mundo está suscetível a dores de barriga e pode faltar no trabalho, pode mudar de trabalho. 
+
+Enfim, você não vai estar aqui para sempre, está daqui 200 anos. Se por acaso quiserem retomar esse seu projeto, alguém, que não você, vai precisar fazer algum tipo de modificação, dar algum tipo de suporte, fazer algum ajuste, ou refatorar, ou evoluir, ou começar alguma coisa com base no seu projeto. Então, a documentação também serve para esses seres humanos do futuro, que não são vocês, mas que vão precisar entender o seu código, vão precisar entender o seu modelo. 
+
+Nesse caso, a documentação também é mega relevante, porque diferente de você, que talvez tenha uma memória de elefante, que vai lembrar daqui um ano, porque as decisões que foram tomadas, foram tomadas, o seu amiguinho que vai assumir esse projeto não vai saber. Não importa o quão boa seja a memória dele. E também, a documentação serve para stakeholders que não são técnicos.
+
+(23:35 - 24:03)
+Então, nem todo mundo que vai ter contato com o seu modelo, com o seu projeto, eles são pessoas técnicas. Nem todo mundo vai ser um engenheiro de Machine Learning, nem todo mundo vai ser um cientista de dados. Então, é importante que exista documentação também para esse tipo de perfil, um perfil não técnico.
+
+(24:05 - 25:11)
+Então, são geralmente esses três públicos que vão ter contato com o seu projeto, com o seu modelo, e que a documentação se torna importante. Enquanto a gente vai escrever a documentação, também é sempre bom se perguntar, esse documento que eu estou escrevendo, essa documentação que eu estou fazendo, para qual dessas audiências eu estou escrevendo? Então, se eu estou fazendo um readme do meu projeto, talvez eu esteja falando aqui com um stakeholder não técnico. Ou se eu estou fazendo um FAQ, ou um report executivo do meu projeto, quem vai ler isso não é um instrumento técnico. 
+
+Então, ao linguajar as informações que eu vou passar ali, eu preciso enquadrar para esse público. Da mesma forma, se eu estiver documentando um código, colocando ali comentários, type-in, dot-streams, etc., quem vai ver aquilo não é uma pessoa não técnica. Se a pessoa está abrindo um código, provavelmente não é uma pessoa técnica.
+
+(25:11 - 26:38)
+Então, eu posso utilizar de certos linguajares e posso utilizar certo tipo de documentação para esse público, que é um público mais técnico. Então, é sempre bom fazer essa avaliação. E aí, voltando lá para o Tech Challenge, o que está lá nas entregas, que é o que quem vai avaliar vai olhar? Emprega obrigatória. 
+
+A gente tem o model card completo, então a gente vai falar agora sobre, daqui a pouquinho, sobre o model card, o que é e etc. Então, o model card do seu modelo, o readme do projeto, do repositório e o plano de monitoramento, que pode ser um dos documentos que estão dentro do repositório, dentro do projeto. Quer dizer que eu só preciso ter esses três documentos? Não. 
+
+Boa prática. Eu tinha uma professora que falava que a bunda não prejudica. É muito mais fácil ter excesso de documentação do que falta de documentação. 
+
+Porque, no pior dos cenários, no excesso de documentação, ela só não vai ser lida, mas ela vai estar lá. A falta de documentação é muito mais problemático, é muito mais crítico. Porque, enfim, a gente só percebe que a gente precisava da informação quando ela falta.
+
+(26:39 - 26:46)
+Então, na dúvida, documentem. Ah, eu devo documentar isso? Na dúvida, documenta. Mal não vai fazer.
+
+(26:49 - 27:45)
+E aqui eu tenho só um exemplo, porque não basta documentar, tem que documentar bem. Então não adianta, por exemplo, você tem lá o model card que tem na parte de limitações, ah, esse meu modelo, como qualquer outro, ele pode errar. Legal, champs. 
+
+Mas essa informação aí nada é igual a nada. A diferença de uma boa documentação. O modelo foi treinado, os clientes ativos entre T1 de 2022 e T4 de 2023, não foi avaliado em clientes corporativos B2B, ou seja, só foi B2C. 
+
+Não deve ser usado, portanto, em outro segmento. O curso para clientes com tenure de 12 pontos mais baixa do que a média. Não foi feita análise de fairness do gênero ou região, pois o dataset não contém esses campos.
+
+(27:45 - 29:01)
+Enfim, documentação de limitações muito mais rica do que simplesmente falar, ah, o modelo erra. Ah, legal. Então beleza, vamos falar um pouquinho agora sobre model cards, o que é esse tipo de documentação e como a gente pode usar no nosso projeto. 
+
+Por enquanto, antes da gente estar em model cards, alguma dúvida? Por enquanto, ou eu posso seguir? Então, será que tá tudo ok? O que são model cards? Model cards é como se fosse uma bula. Da mesma forma que você, quando compra um remédio, você tem lá um papel que vem dentro da embalagem, falando sobre o que é aquele remédio, para que serve, para quem é recomendado, para quem não é recomendado, como tomar, quais são os prováveis riscos e, enfim, condições adversas que podem acontecer. O que fazer em caso de intoxicação por aquele remédio.
+
+(29:02 - 29:58)
+É um papel, no caso da bula, modernizada para todos os remédios. Então, qualquer remédio que você pegar, você tem uma bula que vai ter mais ou menos as mesmas categorias, que vão ter as mesmas informações de uso. Tanto de uso, de recomendações, etc. 
+
+O model card é a bula dos modelos de machine learning. A gente ouve falar de model cards, principalmente agora na época das LLAs, porque as grandes empresas, Google, GNI, Antropic, Cloud, OpenAI, GPT, sempre que eles lançam um modelo, geralmente eles disponibilizam o model card. Esse conceito não é recente, mas também não é muito antigo.
+
+(0:00 - 0:21)
+Eu passei agora pelos model cards. Alguém tem mais algum ponto? Bom, então eu vou seguir. Então, aqui nesse capítulo, a gente fala um pouquinho sobre o Rhythm.
+
+(0:23 - 0:49)
+Por que que é importante e o que que geralmente a gente coloca no Rhythm. Aqui eu estou só dando um exemplo onde eu tenho um cenário onde o Rhythm é ruim. Que é de pouco uso para a comunidade ou para as pessoas que vão encontrar aquele projeto.
+
+(0:50 - 1:15)
+Ou para dentro da empresa, para a pessoa que está assumindo aquele projeto. E um outro cenário onde o Rhythm é muito mais informativo. Aqui focando principalmente no Tech Challenge, qual que é o objetivo desse Rhythm? É todo o Tech Challenge que vocês fizerem acaba se tornando um portfólio.
+
+(1:15 - 1:30)
+Então é um cantão de visitas profissional. Quem estiver procurando vaga e etc, isso acaba ajudando. Porque se torna documentação portfólio.
+
+(1:30 - 1:51)
+As pessoas, geralmente quando o seu perfil sai do pessoal do RH e vai para o perfil de avaliação técnica. Geralmente as pessoas que estão avaliando o seu perfil e etc para a vaga. Vão olhar o seu GitHub, vão olhar os seus projetos e comam.
+
+(1:51 - 2:11)
+E a primeira coisa que vão olhar é o Rhythm dos projetos. No caso do Tech Challenge é um dos principais documentos que quem for avaliar vai olhar. Principalmente porque geralmente a gente vai rodar o projeto de vocês.
+
+(2:11 - 2:29)
+Ou rodar parte do projeto de vocês. Então é interessante que no Rhythm esteja bem claro como reproduzir, rodar esses projetos. E como eu falei se torna uma memória externa do projeto.
+
+(2:31 - 2:48)
+Daqui 3, 6, 1 ano você vai voltar nesse repositório e você não vai lembrar nada do que você fez. Então o Rhythm ajuda a guiar. Da mesma forma como os Mobile Cards não existe um padrão de Rhythm.
+
+(2:49 - 3:13)
+Cada um vai criar do seu jeito. Cada um vai ter, cada time, cada empresa, cada profissional vai ter o seu padrão, a forma de criar. Então aqui está só algumas seções que geralmente a gente acaba vendo.
+
+(3:14 - 3:26)
+E que vocês podem se basear para ter. Então tem o título, se for algum projetinho. Tem um logo, por exemplo, do projeto.
+
+(3:27 - 3:50)
+Tem uma tagline falando o que é esse projeto. E badges, então aqueles badges para identificar versão do padrão, tecnologias usadas, versão atual, etc. Uma foto, um gif, demo, quando é algo que faça sentido ter.
+
+(3:51 - 4:09)
+Como instalar, como executar esse código. Quick start, então beleza, como que eu boto isso, como que eu utilizo, como que eu configuro. Quais são as principais features desse projeto.
+
+(4:10 - 4:31)
+Exemplos de uso. Se geralmente é um projeto grande, geralmente tem outras documentações auxiliares. Então aí a pergunta da Giovana que ela tinha feito, só um readme na raiz ou um readme em cada pasta.
+
+(4:31 - 4:50)
+Vai depender muito do padrão que o time, as pessoas usam. Geralmente o que se faz, o que a gente vê por aí, é ter um readme na raiz. E você tem uma pasta de documentação, docs, documents.
+
+(4:50 - 5:07)
+E dentro dessa pasta de documentação, você tem detalhamentos. Você tem lá um documento específico sobre drift, você tem um documento específico sobre o modelo. Você tem o model card, line docs, enfim.
+
+(5:08 - 5:38)
+Você tem documentos mais específicos e mais detalhados. Mas vai ter gente que, principalmente quem faz muito uso de VibeCode ou programa assistido por agentes de codificação. Eles gostam de ter um markdown dentro de cada pasta, para dar contexto para a gente sobre os arquivos e objetivos.
+
+(5:42 - 6:02)
+Mas vai depender muito do padrão ou do que a equipe, o time, onde você estiver trabalhando. Ou da sua forma de documentar, vai depender muito dessas decisões. Não existe uma regra, ou o certo e o errado.
+
+(6:02 - 6:17)
+São formas diferentes de documentar. O importante é que, se por exemplo, eu quero ter um readme dentro de cada pasta. É interessante que eu tenha no meu readme raiz, essa informação.
+
+(6:18 - 6:42)
+Que dentro de cada pasta existe um readme detalhando e blá, blá, blá. Para quem estiver lendo esse repositório, não precisar inferir ou descobrir como está espalhada a documentação dentro do seu repositório. Ou se eu tenho uma pasta de documentação, o readme raiz está lá explicando que eu tenho o link para a pasta de documentação.
+
+(6:42 - 6:52)
+E lá eu tenho quais arquivos que vão explicar tais informações mais detalhadamente. O caso de ficarem links apontados para demais readmes. Exatamente.
+
+(6:53 - 7:11)
+Você pega e pode colocar links usando o markdown, apontando para esses outros readmes. Ou para essa pasta de documentação, ou para esses outros arquivos de documentação. Geralmente a gente usa o readme raiz do repositório como esse grande hub centralizado.
+
+(7:11 - 7:31)
+Que a partir dele eu consigo acessar outras pastas e outras documentações. Isso que eu comentei aqui, a estrutura do repositório. O que tem dentro desse repositório, o que são as pastas, onde está o código, onde está a documentação.
+
+(7:31 - 7:50)
+O que é, sei lá, pasta onde tem a documentação técnica, focada em agentes. O que eu tenho, pasta com decisões que foram tomadas, as ADRs. Ou pastas com a documentação de uso.
+
+(7:53 - 8:34)
+Questão de contribuição, então se é um projeto open source, como que as pessoas podem contribuir? Então abrindo o pull request, abrindo o issue, como que funciona? Se é um projeto acadêmico, citação, então como que eu cito? Se por acaso for usar o seu projeto no meu projeto de pesquisa, no meu paper ou coisa parecida. Como que eu cito? E a licença, se é de uso livre, se não é. Qual tipo de licença, quanto que eu posso utilizar, se as pessoas podem utilizar ou não podem utilizar. Se podem modificar, não podem modificar, etc.
+
+(8:37 - 9:07)
+Algo super legal que tem hoje em dia, que os repositórios no GitHub nativamente aceitam. É o que são utilizar diagramas no formato mermide, que eu já mostro para vocês. O GitHub tem essa sintaxe para você colocar como se fosse callouts, bots de aviso, de aposição.
+
+(9:07 - 9:36)
+Que são esses boxes aqui, eles são padrões, você faz assim no Markdown e ele renderiza assim lá no GitHub. O Markdown aceita tabelas, então tabelas de 20. O Markdown também aceita links, então essa é a forma de linkar.
+
+(9:37 - 10:06)
+É para navegação rápida dentro do próprio Markdown, inclusive. E Beds via Shields.io, que são esses beds que ficam em cima. É um site que você entra e você consegue gerar vários tipos de beds para colocar no seu projeto.
+
+(10:11 - 10:32)
+Beleza? Aqui eu trago só alguns exemplos desses de regimes que podem ser interessantes para vocês darem uma olhada. Legal. Beleza, então os beds que eu comentei.
+
+(10:33 - 11:06)
+São beds de building, beds de cobertura de testes, de versão, utilizado, de licença, de código, linguagem. Beds do próprio GitHub. E aí tem uma forma de fazer diagramas, que se chama Mermaid, que é uma biblioteca em Javascript.
+
+(11:06 - 11:25)
+Que você define diagramas no formato Markdown, então com texto dessa forma aqui. E ele renderiza num formato de diagramas. Aqui está só explicando como monta e alguns exemplos, mas se vocês virem nesse link aqui.
+
+(11:27 - 11:43)
+Então você tem esses diagramas que você cria eles dessa maneira aqui. E existem vários tipos de diagramas. Você consegue fazer diagramas de sequência, flow, até Gantt você consegue fazer.
+
+(11:44 - 12:13)
+Diagrama C4, blocos, radar, tree map. Você consegue até fazer gráficos atualmente, gráfico de bem, padrão ME. Você consegue fazer uma frontal, diagrama entidade de relacionamento, bloco de dados.
+
+(12:14 - 12:29)
+Tudo usando só Markdown. Você copia esse código aqui, coloca no Readme, por exemplo. E aí o próprio GitHub renderiza esse diagrama.
+
+(12:29 - 12:46)
+Então se você colocar um bloco Mermaid, igual eu coloquei aqui, no seu Markdown. Lá no GitHub você consegue ver ele renderizado. Eu acho que eu tenho um repositório aqui.
+
+(12:48 - 13:02)
+Deixa ver se eu coloquei. Eu acho que eu não coloquei. Mas vocês conseguem fazer aqui os beds, logo, features e etc.
+
+(13:03 - 13:20)
+Mas ele renderiza direto ali na página do GitHub nativamente. Então pode ser interessante para mostrar diagramas e etc. Do que colocar uma imagem ou fazer só com texto, só com ASCII.
+
+(13:22 - 13:39)
+Beleza, então aqui está um exemplo só de um repositório. Por exemplo, no TechCharger eu tenho o Readme. Aí eu tenho o Makefile, que é aquele arquivo para você fazer comandos make.
+
+(13:39 - 13:52)
+Então make é alguma coisa, make setup, make train. Workflows de CICG, por exemplo. Passa com data, onde a gente tem os dados.
+
+(13:53 - 14:03)
+Com notebooks. Aí eu tenho aqui o source, onde eu vou ter minha API. Meus scripts de treinamento, de tracking, etc.
+
+(14:04 - 14:12)
+Minha pasta de testes. A pasta onde eu salvo os modelos treinados. A pasta de documentação.
+
+(14:12 - 14:25)
+E a pasta aqui do MLflow. Então aqui está um exemplo de um diagrama Mermide, por exemplo. Outro exemplo de um diagrama Mermide, etc.
+
+(14:25 - 14:47)
+Então não existe um padrão de como documentar um Readme. Mas existem boas práticas e pensem no Readme como se fosse o índex, a página de entrada, a home do seu projeto. Então todo mundo que quer acessar o seu repositório, a primeira coisa que ele vai ver é o Readme.
+
+(14:47 - 15:01)
+Ele precisa ser, então, bem explicativo. Não precisa fazer um Readme gigantosco, certo? O Readme não é para ter três mil linhas. Se ele estiver ficando muito grande, é talvez porque você esteja detalhando demais.
+
+(15:02 - 15:17)
+Vale você separar isso no arquivo Markdown separado. Colocá-lo na pasta de documentação, por exemplo. E aí no Readme você só linka, por exemplo, os detalhes da arquitetura.
+
+(15:17 - 15:45)
+Está lá o link para o Readme, onde você detalha a arquitetura do seu modelo. O ModelCard você linka lá no Readme, o ModelCard, assim sucessivamente. Beleza? Quase terminando, falando um pouquinho só sobre DocStreams, TypeRimps e uso de IA, que a IA brilha para isso.
+
+(15:47 - 16:09)
+Até agora a gente está falando sobre documentação, que faz parte do projeto. É uma parte principal do projeto, mas a gente está falando de arquivos que não somente são códigos do nosso projeto. Aqui a gente vai falar sobre documentação já em artefatos do nosso projeto.
+
+(16:10 - 16:26)
+Em código, arquivos Python. Então aqui estou só falando por que é importante documentar o código em si. Não basta criar lá o markdown todo bonitinho, com as decisões e o motivo.
+
+(16:26 - 16:49)
+É importante documentar também o código, porque quem, seja você do futuro, seja o coleguinha, às vezes vai precisar implementar alguma feature, fazer alguma correção, reterminar, reutilizar aquele seu código, dar manutenção àquele código. É importante que aquele código seja de fácil entendimento. E aí é nesse ponto que a gente vai discutir.
+
+(16:49 - 17:38)
+Quando a gente fala de Machine Learning, isso se torna também muito relevante, até porque é a forma como as funções de Machine Learning funcionam. Aonde, por exemplo, eu vou trabalhar em arquiteturas de rede neural com sensores, geralmente os sensores têm shapes específicos. Por exemplo, se eu estou treinando uma CNN, eu vou ter que passar para uma função de treino ou de inferência um sensor em determinado shape, onde eu vou ter um batch, o canal, a altura e a largura da imagem.
+
+(17:38 - 18:04)
+Então isso aqui representa os batchs de imagem. Se eu estou falando de uma rede neural recorrente, porque vai trabalhar com time series, eu vou ter também o batch, eu vou ter o ponto no tempo, eu vou ter o dado, que pode ter outros tipos de shape, tensor, vai depender muito. Enfim, depender só de documentação.
+
+(18:04 - 18:26)
+Além do código, fora código, pode ser complicado. Documentar o código é super importante. No código, se eu tenho, como a gente comentou, um threshold de 0.5 e 0.65, isso muda o comportamento das previsões.
+
+(18:28 - 18:50)
+Então quem está vendo o código precisa entender por que aquele threshold está sendo usado. Então ao invés de ir na documentação, isso pode estar além da documentação, pode estar também no código. Existem algumas formas de documentar o nosso código.
+
+(18:51 - 19:25)
+Aqui tem um carinha famoso pelo livro Clean Code. Ele coloca essa estrutura hierárquica de como documentar. O que é um código bem documentado? Então o primeiro nível, ou seja, a primeira coisa que precisa tentar informar é que os nomes, variáveis, funções, classes, sejam significativos.
+
+(19:25 - 19:47)
+Você lê e entenda o que eles estão fazendo. Se apenas com isso não for suficiente, a segunda camada de documentação é o que a gente chama de type hints. Então qual é o tipo daquela variável, o que aquela função retorna, o que aquela função espera e quais são os tipos.
+
+(19:48 - 20:11)
+Então é um tensor? Qual é o shape desse tensor que ele está esperando? É uma lista? Uma lista do que? Uma lista de float? Uma lista de inteiro? Enfim, esses são o que eles chamam de type hints. Mesmo com esses dois, ainda não for suficiente, a gente tem uma terceira camada que é as doc screens. São documentações das funções que ficam próximo das funções que a gente vai ver.
+
+(20:12 - 20:29)
+E se mesmo assim ainda não for suficiente, a gente tem os comentários inline. Os comentários inline são a última coisa que vocês vão considerar usar. O último recurso que a gente tem de documentação.
+
+(20:29 - 20:52)
+Ela não é para explicar o que está acontecendo. Porque o que está acontecendo, você deve, lendo a partir do nome, do type reads, do doc screens, você já deve entender o que está acontecendo. Geralmente os comentários a gente vai utilizar para explicar o porquê daquelas decisões.
+
+(20:52 - 21:06)
+O porquê está sendo feito daquele jeito. É um exemplo ruim. Eu tenho aqui uma função, clock, que só Deus sabe o que significa.
+
+(21:06 - 21:16)
+Eu tenho um comentário aqui que diz que D é o data frame de clientes. Então, imagina que aqui eu vou passar o data frame de clientes. E T é o threshold churn.
+
+(21:17 - 21:38)
+Então, eu vou passar o valor de threshold aqui. Aí eu tenho aqui esse D, que é igual D, que vai filtrar. Então, data frame, que vai filtrar a feature S com o valor 1. Então, tem um comentário aqui falando que isso está filtrando os clientes ativos.
+
+(21:38 - 21:51)
+E a última aqui é que aplica o modelo. Então, todos que P, que só dar aqui da avaliação, todos que P for maior que o threshold. Legal.
+
+(21:52 - 22:02)
+Horrível. Ininteligível, certo? Agora, olha a diferença. Eu tenho uma função, predict churn for active customers, show de bola.
+
+(22:02 - 22:17)
+Já entendi que é uma função para predizer o churn para clientes ativos. Essa função recebe customers, que é um data frame pandas, e recebe um churn threshold, que é um float. Show de bola.
+
+(22:18 - 22:50)
+E ele vai me retornar uma series, um array pandas. Aí eu tenho que os clientes ativos é o data frame customers, filtrados pela coluna status igual a 1. E ele vai retornar aqueles clientes ativos, que eu filtrei os clientes ativos, que a probabilidade de churn for maior que o threshold de churn. Repare, eu não precisei de comentário nenhum aqui.
+
+(22:51 - 23:07)
+Só utilizando nomes significativos para as funções e variáveis. E type hints, que é o que retorna, o que espere, etc. Eu já consegui entender o que a função faz.
+
+(23:07 - 23:20)
+Eu não precisei de comentários, não precisei de mais nada. Então, documentar também passa por isso. É a forma como eu escrevo o código.
+
+(23:20 - 23:42)
+O código tem que falar por si só, certo? Então, isso também é uma forma de documentação que é super importante. Quando comentar? Então, quando que eu uso comentários? Os bons comentários explicam o porquê. Então, eu tenho aqui um dicionário, que está fazendo um grupo by, etc.
+
+(23:42 - 24:04)
+E aqui eu estou comentando porque isso aqui é necessário. Então, o workaround, no caso do bug do pandas.xpto, a gente tem que remover isso depois que fizer o update do pandas. Threshold, a gente está configurando aqui, pegando o Threshold das configurações.
+
+(24:04 - 24:26)
+Se não, o default é o 0.65. É aqui que eu estou colocando, Threshold é maior ou igual a 0.5 em produção por decisão do produto. VADR007. Então, eu sei que esse Threshold aqui que ele vai retornar em produção vai ser maior que 0.5. E precisa ser maior que 0.5 por conta dessa decisão.
+
+(24:26 - 24:41)
+Eu posso ir lá na documentação e entender o porquê dessa decisão. Tenho aqui Z igual 1.96. O que é esse Z? É o score de Wilson para intervalo de confiança binomial. Show de bola.
+
+(24:41 - 24:49)
+Aqui tem a referência. Então, repare. Os comentários eu não estou usando para dizer o que está fazendo.
+
+(24:49 - 25:03)
+Por exemplo, i é igual a mais 1. Ah, incrementa i em 1. Óbvio. Não precisava desse comentário. If user is active, verifica se o usuário está ativo.
+
+(25:04 - 25:07)
+Óbvio de novo. Não preciso. Ou comentei.
+
+(25:08 - 25:14)
+Result equal old algorithm. Comentei, porque está antigo. Não devia ter comentado, devia ter removido.
+
+(25:15 - 25:26)
+Porque é código morto, deprecado. Então, usem os comentários para explicar o porquê das coisas. Isso é super importante.
+
+(25:26 - 25:43)
+Existem algumas convenções de tags que a gente pode usar. Novamente, não é regra, mas são convenções que geralmente as pessoas usam. Então, geralmente, quando a gente vê um comentário com to do, é um trabalho planejado, não necessariamente urgente, que em algum momento precisa ser feito.
+
+(25:44 - 25:58)
+Está aqui um to do Fabrício em 22 do quadro de 2026. Precisa adicionar o early stopping aqui. Ou ter um fix, um fix me, que é um bug conhecido, que a gente não precisa corrigir naquela hora por algum motivo, mas precisa ser corrigido.
+
+(25:59 - 26:17)
+Então, tem um fix me de tenor a linha, que é notch a number no batch, quando o feature tenor é igual a zero. Então, é um fix que tem que ser feito, que o batch acaba aparecendo notch a number. Quando tem alguma solução temporária, ou a famosa gambiarra.
+
+(26:17 - 26:25)
+Então, tem REC. Força device CPU até resolver issue 142 do MLflow. Então, a solução temporária.
+
+(26:26 - 26:35)
+XXX. Código perigoso, atenção. Note, é para observações informativas.
+
+(26:36 - 26:59)
+Existem até algumas bibliotecas e tal, que utilizam isso. Então, por exemplo, tudo que for to do, ou, por exemplo, fix ou fix me. Se você roda o rough, que ele tem um link, tem um formato que vai verificar os códigos, ele pode falhar, dar erro, se ele encontrar algum fix me.
+
+(26:59 - 27:14)
+Por exemplo, no código. Por quê? Só vai subir para deploy se todos os fix tiver corrigido. Enfim, um outro ponto de documentação de código é as docstrings.
+
+(27:14 - 27:26)
+Que ela foi documentada na PEP 257. PEP é a proposta de melhoria do Python. Então, tem várias PEPs.
+
+(27:26 - 27:49)
+A PEP 257, ela fala especificamente de docstrings. O que são docstrings? São esses comentários que são delimitados por três aspas e vêm logo após uma função ou no começo de arquivo. Então, existem alguns estilos de docstrings.
+
+(27:49 - 28:14)
+Então, novamente, não existe um padrão ou uma regra, mas existem estilos de como documentar, como utilizar docstrings. Existe o que a gente chama de Google Style, que é geralmente usado pelo Google, a gente vê isso em TensorFlow, JAX, CAT, que são do Google, mas em algumas outras bibliotecas, onde a gente tem esse formato. Então, eu tenho uma função e eu tenho a docstring.
+
+(28:14 - 28:43)
+E aqui eu vou exemplificar, eu vou falar o que a função faz, descrever ela, e aí eu vou ter alguns títulos ou sessões que esse docstring pode ter. Então, no padrão Google, a gente faz assim, coloca args, quais são os argumentos e o que é. Então, essa função recebe table, keys e require all keys. Então, table, keys, require all keys.
+
+(28:43 - 29:12)
+E o que é cada um desses argumentos? O que retorna? Então, eu sei que é um dicionário onde as chars são mapeadas, correspondentes, as linhas, as tabelas, etc. E ele pode disparar erros, como o IOERROR, que é o erro ao acessar tabelas. Então, essas são as sessões padrões.
+
+(29:12 - 29:23)
+Então, no meu docstring eu vou falar sobre args, vou ter returns, raise, real, not, etc. Essa é uma forma. Existem outras formas.
+
+(29:23 - 29:43)
+Geralmente, quando a gente vê bibliotecas de Machine Learning, a gente vê essa NumPyStyle. Por quê? Porque geralmente é usada pela NumPy, SciPy, Pandas, Scikit-Learn, Matplotlib, StatsModel. Então, como essas são as principais bibliotecas de Machine Learning, geralmente bibliotecas de Machine Learning acabam seguindo esse formato que a gente chama de NumPyStyle.
+
+(29:44 - 29:55)
+A lógica, o filosofia por trás é a mesma. Eu vou documentar o que essa função faz. Eu tenho uma linha falando o que a função faz e eu descrevo ela.
+
+(29:56 - 29:59)
+E aí eu tenho sessões. A diferença para o estilo do Google...
