@@ -18,7 +18,7 @@ class TotalChargesCleaner(BaseEstimator, TransformerMixin):
     def __init__(self, column_name: str = "Total Charges"):
         self.column_name = column_name
 
-    def fit(self, X: pd.DataFrame, y: Any = None) -> "TotalChargesCleaner":
+    def fit(self, X: pd.DataFrame, y: Any = None) -> TotalChargesCleaner:
         return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
@@ -44,7 +44,7 @@ class FeatureColumnAligner(BaseEstimator, TransformerMixin):
         self.columns_: list[str] | None = None
         self.feature_names_in_: np.ndarray | None = None
 
-    def fit(self, X: pd.DataFrame, y: Any = None) -> "FeatureColumnAligner":
+    def fit(self, X: pd.DataFrame, y: Any = None) -> FeatureColumnAligner:
         if not isinstance(X, pd.DataFrame):
             raise TypeError("FeatureColumnAligner espera pandas.DataFrame na entrada do fit.")
         self.columns_ = X.columns.tolist()

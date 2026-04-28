@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Pré-processamento oficial para o pipeline **MLP + notebooks**.
 

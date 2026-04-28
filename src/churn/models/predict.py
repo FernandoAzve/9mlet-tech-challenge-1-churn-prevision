@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 
@@ -10,30 +9,16 @@ Inferência em lote ou na API usando apenas o **bundle MLP** oficial.
 
 from __future__ import annotations
 
-
-
 import argparse
-
 import json
-
 from pathlib import Path
-
 from typing import Any
 
-
-
 import numpy as np
-
 import pandas as pd
 
-
-
 from churn.models.mlp_bundle import ChurnMLPBundle
-
 from churn.models.registry import load_churn_mlp_bundle
-
-
-
 
 
 def get_expected_feature_columns(model: Any) -> list[str] | None:

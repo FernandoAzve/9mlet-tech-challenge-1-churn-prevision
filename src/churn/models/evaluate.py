@@ -1,11 +1,4 @@
-from __future__ import annotations
-
-from typing import Any
-
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
-
-
-def classification_metrics(y_true, y_pred, y_proba=None) -> dict[str, Any]:
+from __future__ import annotationsfrom typing import Anyfrom sklearn.metrics import (    accuracy_score,    f1_score,    precision_score,    recall_score,    roc_auc_score,)def classification_metrics(y_true, y_pred, y_proba=None) -> dict[str, Any]:
     """
     Métricas clássicas de classificação binária em linguagem simples:
 

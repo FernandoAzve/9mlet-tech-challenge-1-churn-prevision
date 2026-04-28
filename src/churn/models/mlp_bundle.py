@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 
@@ -24,31 +23,17 @@ O MLflow continua registrando só a rede PyTorch; o pré-processador fica sempre
 
 from __future__ import annotations
 
-
-
 import json
-
 from pathlib import Path
-
 from typing import Any
 
-
-
 import joblib
-
 import numpy as np
-
 import pandas as pd
-
 import torch
-
 from sklearn.pipeline import Pipeline
 
-
-
 from churn.models.mlp_torch import MLPChurn
-
-
 
 # Nomes fixos dos arquivos dentro da pasta do bundle (não renomeie à mão em produção).
 
@@ -134,7 +119,7 @@ class ChurnMLPBundle:
 
     @classmethod
 
-    def load(cls, bundle_dir: str | Path) -> "ChurnMLPBundle":
+    def load(cls, bundle_dir: str | Path) -> ChurnMLPBundle:
 
         """
 

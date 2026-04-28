@@ -7,6 +7,8 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from churn.api.logging_config import configure_logging
+from churn.api.middleware import LatencyLoggingMiddleware
 from churn.api.routes import router
 from churn.config import DEFAULT_MLP_BUNDLE_DIR
 from churn.models.registry import load_churn_mlp_bundle
@@ -34,6 +36,8 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    configure_logging()
+
     app = FastAPI(
         title="Churn Prediction API",
         version="0.2.0",
@@ -43,6 +47,7 @@ def create_app() -> FastAPI:
         ),
         lifespan=lifespan,
     )
+    app.add_middleware(LatencyLoggingMiddleware)
     app.include_router(router)
     return app
 

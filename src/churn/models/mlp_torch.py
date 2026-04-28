@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 
@@ -10,20 +9,11 @@ MLP PyTorch para churn (notebook 04): logits, sigmoid na avaliação, BCEWithLog
 
 from __future__ import annotations
 
-
-
 import numpy as np
-
 import torch
-
 import torch.nn as nn
-
 import torch.optim
-
 from torch.utils.data import DataLoader
-
-
-
 
 
 class MLPChurn(nn.Module):
