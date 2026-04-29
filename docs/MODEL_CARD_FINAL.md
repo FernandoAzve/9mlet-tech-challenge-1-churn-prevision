@@ -58,16 +58,16 @@ A tabela abaixo resume o desempenho dos modelos avaliados no mesmo conjunto de t
 - A seleção do modelo para produção deve explicitar o critério: se a prioridade for recuperar valor (minimizar FN por CLTV), use a MLP calibrada; se a prioridade for precisão do ranking global (priorizar listas de clientes por score), considere o Random Forest/Extra Trees e reavaliar thresholds e políticas.
 
 **Auditabilidade (runs MLflow):**
-Para facilitar auditoria e reprodução, os runs que geraram as métricas acima estão registrados localmente em `mlruns`. Abaixo segue um mapeamento direto para `run_id`, `run_name` e `model_uri` (artefato `model`) — clique nos links para inspecionar os metadados do run.
+Para facilitar auditoria e reprodução, os runs que geraram as métricas acima estão registrados no MLflow local quando disponível. Abaixo segue um mapeamento direto para `run_id`, `run_name` e `model_uri` (artefato `model`).
 
-| Modelo              | run_name                     | run_id                                 | model_uri                      | run meta |
-|---------------------|------------------------------|----------------------------------------|--------------------------------|----------|
-| Random Forest       | 05_compare_RandomForest      | dfa3d71f486f4f34a25fe569f58bc6f1       | runs:/dfa3d71f486f4f34a25fe569f58bc6f1/model | [meta](mlruns/117079241852353941/dfa3d71f486f4f34a25fe569f58bc6f1/meta.yaml#L1) |
-| Extra Trees         | 05_compare_ExtraTrees        | 0a2902ed6a6b4238b92f1afbc584e651       | runs:/0a2902ed6a6b4238b92f1afbc584e651/model | [meta](mlruns/117079241852353941/0a2902ed6a6b4238b92f1afbc584e651/meta.yaml#L1) |
-| MLP-PyTorch (cal.)  | 05_compare_MLP-PyTorch       | a9b1eb9a26ac4ff5951bf1b8cc88d277       | runs:/a9b1eb9a26ac4ff5951bf1b8cc88d277/model | [meta](mlruns/117079241852353941/a9b1eb9a26ac4ff5951bf1b8cc88d277/meta.yaml#L1) |
-| Decision Tree       | 05_compare_DecisionTree      | 22aaa32040a04db1aefade74b0985c33       | runs:/22aaa32040a04db1aefade74b0985c33/model | [meta](mlruns/117079241852353941/22aaa32040a04db1aefade74b0985c33/meta.yaml#L1) |
-| Logistic Regression | 05_compare_LogisticRegression| f6b70999e08246b0bd91122bda614389       | runs:/f6b70999e08246b0bd91122bda614389/model | [meta](mlruns/117079241852353941/f6b70999e08246b0bd91122bda614389/meta.yaml#L1) |
-| Análise Trade-off    | 06_tradeoff_reuso_modelo     | a2b585682d57436f836a699fdcacfd3c       | runs:/a2b585682d57436f836a699fdcacfd3c/model | [meta](mlruns/811469084686303744/a2b585682d57436f836a699fdcacfd3c/meta.yaml#L1) |
+| Modelo              | run_name                     | run_id                                 | model_uri                      |
+|---------------------|------------------------------|----------------------------------------|--------------------------------|
+| Random Forest       | 05_compare_RandomForest      | dfa3d71f486f4f34a25fe569f58bc6f1       | runs:/dfa3d71f486f4f34a25fe569f58bc6f1/model |
+| Extra Trees         | 05_compare_ExtraTrees        | 0a2902ed6a6b4238b92f1afbc584e651       | runs:/0a2902ed6a6b4238b92f1afbc584e651/model |
+| MLP-PyTorch (cal.)  | 05_compare_MLP-PyTorch       | a9b1eb9a26ac4ff5951bf1b8cc88d277       | runs:/a9b1eb9a26ac4ff5951bf1b8cc88d277/model |
+| Decision Tree       | 05_compare_DecisionTree      | 22aaa32040a04db1aefade74b0985c33       | runs:/22aaa32040a04db1aefade74b0985c33/model |
+| Logistic Regression | 05_compare_LogisticRegression| f6b70999e08246b0bd91122bda614389       | runs:/f6b70999e08246b0bd91122bda614389/model |
+| Análise Trade-off   | 06_tradeoff_reuso_modelo     | a2b585682d57436f836a699fdcacfd3c       | runs:/a2b585682d57436f836a699fdcacfd3c/model |
 
 Os arquivos `meta.yaml` contêm `run_id`, `start_time`, `end_time` e referências a artefatos; abra-os para auditoria completa.
 
@@ -97,7 +97,7 @@ Os arquivos `meta.yaml` contêm `run_id`, `start_time`, `end_time` e referência
   - O notebook 06 explora thresholds entre 0.05 e 0.95 e estima custo financeiro para cada ponto, usando um modelo de valor que penaliza Falsos Negativos em função do CLTV perdido e Falsos Positivos pelo custo da ação de retenção.
   - O threshold final foi selecionado não apenas pelo F1, mas pelo trade-off entre custo de retenção e valor recuperado. Isso resulta em uma operação mais alinhada ao impacto econômico do negócio, e não apenas à acurácia estatística.
 
-- **Falsos Negativos (FN): custos reais):**
+- **Falsos Negativos (FN): custos reais:**
   - FN representam clientes que churnam sem serem sinalizados. Na análise de custo, cada FN é tratado como perda direta do CLTV do cliente.
   - Esse cenário é o mais crítico para o problema de churn, pois a perda financeira de um cliente real pode superar o custo de uma ação de retenção mal direcionada.
   - O threshold foi calibrado para reduzir FN dentro de um limite aceitável, mesmo que isso implique aumentar um pouco a taxa de Falsos Positivos.
@@ -153,12 +153,3 @@ Os arquivos `meta.yaml` contêm `run_id`, `start_time`, `end_time` e referência
   - Recalibrar o threshold sempre que o custo de retenção estimado ou a taxa de sucesso de campanhas mudar de forma material.
   - Retreinar o modelo sempre que houver drift consistente em features chave ou quando o desempenho de produção se degradar abaixo dos limites de governança.
   - Avaliar fairness adicional e risco de viés oculto antes de qualquer extensão do uso para novos segmentos ou coberturas de clientes.
-
----
-
-**Referências:**
-- Notebooks: 01_eda, 02_baseline_dummy_logreg, 03_mlp_pytorch, 04_mlp_training_early_stopping, 05_compare_mlp_baselines, 06_tradeoff_custo_fp_fn
-- docs/METRICAS.md
-- orientacoes_model_card.txt
-
-> Este Model Card segue as melhores práticas de documentação para projetos de Machine Learning, priorizando rigor técnico, análise crítica e transparência.
