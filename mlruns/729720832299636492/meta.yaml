@@ -1,0 +1,7 @@
+artifact_location: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/729720832299636492
+creation_time: 1777422975722
+experiment_id: '729720832299636492'
+last_update_time: 1777422975722
+lifecycle_stage: active
+name: MLP-Churn-EarlyStoppingBatching-local
+workspace: default

@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/117079241852353941/0a2902ed6a6b4238b92f1afbc584e651/artifacts
+end_time: 1777424303948
+entry_point_name: ''
+experiment_id: '117079241852353941'
+lifecycle_stage: active
+run_id: 0a2902ed6a6b4238b92f1afbc584e651
+run_name: 05_compare_ExtraTrees
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1777424299182
+status: 3
+tags: []
+user_id: eduardo.silva

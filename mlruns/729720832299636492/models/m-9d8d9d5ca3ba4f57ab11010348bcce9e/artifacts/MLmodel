@@ -1,0 +1,23 @@
+artifact_path: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/729720832299636492/models/m-9d8d9d5ca3ba4f57ab11010348bcce9e/artifacts
+flavors:
+  python_function:
+    config:
+      device: null
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pytorch
+    pickle_module_name: mlflow.pytorch.pickle_module
+    python_version: 3.11.9
+  pytorch:
+    code: null
+    model_data: data
+    pytorch_version: 2.6.0+cpu
+mlflow_version: 3.10.1
+model_id: m-9d8d9d5ca3ba4f57ab11010348bcce9e
+model_size_bytes: 312848
+model_uuid: m-9d8d9d5ca3ba4f57ab11010348bcce9e
+prompts: null
+run_id: 730ffc61d22747d0a1125a53a30f8f1b
+utc_time_created: '2026-04-29 00:54:20.715013'

@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/117079241852353941/a9b1eb9a26ac4ff5951bf1b8cc88d277/artifacts
+end_time: 1777424310572
+entry_point_name: ''
+experiment_id: '117079241852353941'
+lifecycle_stage: active
+run_id: a9b1eb9a26ac4ff5951bf1b8cc88d277
+run_name: 05_compare_MLP-PyTorch
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1777424303958
+status: 3
+tags: []
+user_id: eduardo.silva

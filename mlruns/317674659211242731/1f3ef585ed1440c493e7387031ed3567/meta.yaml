@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/317674659211242731/1f3ef585ed1440c493e7387031ed3567/artifacts
+end_time: 1777422770250
+entry_point_name: ''
+experiment_id: '317674659211242731'
+lifecycle_stage: active
+run_id: 1f3ef585ed1440c493e7387031ed3567
+run_name: DummyClassifier(prior)
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1777422763785
+status: 3
+tags: []
+user_id: eduardo.silva
