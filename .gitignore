@@ -210,4 +210,11 @@ __marimo__/
 notebooks/mlruns/
 notebooks/mlflow.db
 
+mlruns/
+mlflow.db
+
 src/models*
+
+
+.cursor/
+.github/
