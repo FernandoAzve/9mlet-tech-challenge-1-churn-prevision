@@ -115,7 +115,7 @@ Para o contexto deste projeto (prevenção de churn em telecom), nenhum desses c
 | Pré-processamento   | scikit-learn        | 1.7.2     |
 | Serialização        | joblib              | 1.5.0     |
 | Rastreamento        | MLflow              | 3.10.1    |
-| Linguagem           | Python              | ≥ 3.9     |
+| Linguagem           | Python              | ≥ 3.11    |
 
 ### Comando de execução
 
@@ -144,7 +144,7 @@ A função `_build_v2_features()` constrói vetores one-hot a partir de campos d
 Schemas Pydantic v2 para request/response. Validação tipada de todos os campos de entrada.
 
 ### `src/churn/models/mlp_bundle.py`
-`ChurnPredictor`: carrega o bundle do diretório configurado via `CHURN_MODEL_BUNDLE_DIR`, executa a pipeline `preprocessor → MLP` e retorna `(prediction, probability)`.
+`ChurnMLPBundle`: carrega o bundle do diretório configurado via `CHURN_MODEL_BUNDLE_DIR`, executa a pipeline `preprocessor → MLP` e retorna `(prediction, probability)`.
 
 ---
 

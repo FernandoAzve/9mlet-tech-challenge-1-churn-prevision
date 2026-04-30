@@ -14,34 +14,30 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 - Análise de trade-off de custo (FP vs FN).
 - Rastreabilidade de experimentos no MLflow.
 
-Status atual da Etapa 2:
-
-- Itens 1 a 5 concluídos (incluindo consolidação de runs no MLflow).
-
 ## Estrutura do projeto
 
 ```text
 .
 ├── data/
 │   ├── Telco_customer_churn.xlsx
+│   ├── Telco_customer_churn.csv
 │   └── Telco_customer_churn_ready.csv
 ├── docs/
+│   ├── API.md
+│   ├── API_EXEMPLOS_TESTE.md
+│   ├── ARQUITETURA_DEPLOY.md
 │   ├── METRICAS.md
 │   ├── MODEL_CARD_FINAL.md
 │   ├── OBSERVABILIDADE.md
-│   ├── API.md
-│   ├── TODO.md
-│   ├── MELHORIAS_CONTINUAS_ETAPA2.md
-│   └── CHANGELOG.md
+│   ├── PLANO_MONITORAMENTO.md
+│   └── payloads/
 ├── notebooks/
 │   ├── 01_eda.ipynb
 │   ├── 02_baseline_dummy_logreg.ipynb
 │   ├── 03_mlp_pytorch.ipynb
 │   ├── 04_mlp_training_early_stopping.ipynb
 │   ├── 05_compare_mlp_baselines.ipynb
-│   ├── 06_tradeoff_custo_fp_fn.ipynb
-│   ├── mlflow.db
-│   └── mlruns/
+│   └── 06_tradeoff_custo_fp_fn.ipynb
 ├── models/
 │   └── mlp_bundle/
 ├── src/
@@ -89,7 +85,7 @@ Dependências do projeto estão em requirements.txt e incluem (versões fixadas)
 ### 1) Clonar o repositório
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/FernandoAzve/9mlet-tech-challenge-1-churn-prevision.git
 cd 9mlet-tech-challenge-1-churn-prevision
 ```
 
@@ -158,6 +154,14 @@ Comportamento importante:
 
 - Se o bundle não estiver carregado na inicialização, `GET /health` responde com `model_loaded=false`.
 - Nesse cenário, `POST /predict` retorna `503` com mensagem orientando treino/configuração do diretório de bundle.
+
+### Acesso direto no Render (sem rodar localmente)
+
+A API está publicada no Render. Acesse a documentação interativa (Swagger):
+
+- https://ninemlet-tech-challenge-1-churn-prevision.onrender.com/docs
+
+Observação: como estamos no plano gratuito, a primeira inicialização pode demorar até 5 minutos. Após esse período, a API funciona com performance excelente.
 
 ### 1) Treinar e gerar o bundle
 
@@ -386,17 +390,8 @@ Correção:
 2. Confirmar geração de data/Telco_customer_churn_ready.csv.
 3. Executar novamente o notebook que falhou.
 
-### 3) Problema de paralelismo no Windows (BrokenProcessPool)
 
-Situação:
-
-- Pode ocorrer em alguns cenários com n_jobs=-1 em modelos sklearn.
-
-Status atual:
-
-- O notebook 05 já está ajustado para n_jobs=1 nos modelos relevantes, visando estabilidade.
-
-### 4) Avisos de serialização no MLflow
+### 3) Avisos de serialização no MLflow
 
 Situação:
 
@@ -406,25 +401,15 @@ Status atual:
 
 - São avisos informativos; o registro das runs e artefatos ocorre normalmente.
 
-### 5) Erro de artifact path legado no Windows (`C:\Users\azvef...`)
-
-Situação:
-
-- Em algumas execuções antigas, experimentos ficaram com `artifact_location` absoluto de outra máquina.
-- Isso pode causar `PermissionError` em `mlflow.log_model(...)`.
-
-Correção:
-
-1. Reexecutar os notebooks que registram modelos (02, 04, 05, 06), que já estão preparados para criar/usar experimentos locais quando necessário.
-2. Conferir no MLflow se o experimento em uso possui sufixo `-local` quando houver incompatibilidade de path antigo.
-
 ## Documentação de apoio
 
 - docs/METRICAS.md
-- docs/TODO.md
-- docs/MELHORIAS_CONTINUAS_ETAPA2.md
-- docs/CHANGELOG.md
 - docs/API.md
+- docs/API_EXEMPLOS_TESTE.md
+- docs/ARQUITETURA_DEPLOY.md
+- docs/OBSERVABILIDADE.md
+- docs/PLANO_MONITORAMENTO.md
+- docs/MODEL_CARD_FINAL.md
 
 ## Observações para trabalho em grupo
 

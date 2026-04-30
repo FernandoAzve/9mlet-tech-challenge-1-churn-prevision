@@ -112,7 +112,7 @@ O fluxo de inicialização da aplicação é:
 ```
 create_app()
   ├── configure_logging()          ← configura JsonFormatter no logger raiz
-  ├── FastAPI(lifespan=lifespan)   ← carrega o modelo sklearn
+  ├── FastAPI(lifespan=lifespan)   ← carrega o bundle MLP (pré-processador + PyTorch)
   ├── add_middleware(LatencyLoggingMiddleware)
   └── include_router(router)       ← registra /health e /predict
 ```
@@ -126,7 +126,7 @@ A ordem importa: `configure_logging()` é chamada antes de qualquer outro log pa
 Inicializando a API e fazendo uma predição:
 
 ```
-{"timestamp": "2026-04-19T14:00:00.001Z", "level": "INFO", "logger": "churn.api.main", "message": "Model loaded successfully from models/sklearn/churn_pipeline.joblib"}
+{"timestamp": "2026-04-19T14:00:00.001Z", "level": "INFO", "logger": "churn.api.main", "message": "Bundle MLP carregado de models/mlp_bundle"}
 {"timestamp": "2026-04-19T14:00:05.312Z", "level": "INFO", "logger": "churn.api.middleware", "message": "request_finished", "request_id": "f0e1d2c3-a1b2-4c3d-8e5f-9a0b1c2d3e4f", "method": "POST", "route": "/predict", "status_code": 200, "duration_ms": 12.847}
 {"timestamp": "2026-04-19T14:00:06.001Z", "level": "INFO", "logger": "churn.api.middleware", "message": "request_finished", "request_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "method": "GET", "route": "/health", "status_code": 200, "duration_ms": 0.531}
 ```
@@ -237,8 +237,6 @@ pytest tests/api/test_api.py -v
 ## 7. Documentação relacionada
 
 - [docs/API.md](API.md) — Contrato dos endpoints `/health` e `/predict`
-- [docs/TODO_ETAPA_3.MD](TODO_ETAPA_3.MD) — Item 5 (logging estruturado e middleware de latência)
 - `src/churn/api/logging_config.py` — Implementação do formatter JSON
-- `src/churn/api/middleware.py` — Implementação do middleware de latência
 - `src/churn/api/middleware.py` — Implementação do middleware de latência
 
