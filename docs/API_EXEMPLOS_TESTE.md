@@ -1,19 +1,19 @@
-# API de Predicao de Churn - Guia de Uso e Payloads de Teste
+# API de Predição de Churn - Guia de Uso e Payloads de Teste
 
-Este documento explica o contrato atual da API (um unico endpoint de predicao) e traz payloads prontos para testar variacoes entre nao churn e churn.
+Este documento explica o contrato atual da API (um único endpoint de predição) e traz payloads prontos para testar variações entre não churn e churn.
 
 ## 1. O que a API faz
 
-A API disponibiliza o modelo de churn treinado no projeto para inferencia online.
+A API disponibiliza o modelo de churn treinado no projeto para inferência online.
 
 Endpoints:
 
 - `GET /health`: status da API e do carregamento do modelo.
-- `POST /predict`: predicao de churn com payload de negocio (compacto).
+- `POST /predict`: predição de churn com payload de negócio (compacto).
 
-## 2. Parametros aceitos em `POST /predict`
+## 2. Parâmetros aceitos em `POST /predict`
 
-Campos obrigatorios:
+Campos obrigatórios:
 
 - `tenure_months`
 - `monthly_charges`
@@ -58,50 +58,13 @@ Resposta:
 
 ## 3. Respostas comuns
 
-- `200 OK`: predicao realizada.
-- `422 Unprocessable Entity`: payload invalido (tipos, valores ou campos fora do contrato).
-- `503 Service Unavailable`: modelo nao carregado.
+- `200 OK`: predição realizada.
+- `422 Unprocessable Entity`: payload inválido (tipos, valores ou campos fora do contrato).
+- `503 Service Unavailable`: modelo não carregado.
 
-## 4. Payloads prontos para variacao de churn e nao churn
+## 4. Payloads prontos para variação de churn e não churn
 
 Payloads gerados para o endpoint `POST /predict`:
-
-- [docs/payloads_v2/payload_v2_01_muito_baixo_nao_churn.json](docs/payloads_v2/payload_v2_01_muito_baixo_nao_churn.json)
-- [docs/payloads_v2/payload_v2_02_baixo_nao_churn.json](docs/payloads_v2/payload_v2_02_baixo_nao_churn.json)
-- [docs/payloads_v2/payload_v2_03_medio_nao_churn.json](docs/payloads_v2/payload_v2_03_medio_nao_churn.json)
-- [docs/payloads_v2/payload_v2_04_alto_churn.json](docs/payloads_v2/payload_v2_04_alto_churn.json)
-- [docs/payloads_v2/payload_v2_05_muito_alto_churn.json](docs/payloads_v2/payload_v2_05_muito_alto_churn.json)
-
-Faixa esperada com threshold 0.5:
-
-- `payload_v2_01`: probabilidade muito baixa, classe 0
-- `payload_v2_02`: probabilidade baixa, classe 0
-- `payload_v2_03`: probabilidade media, classe 0
-- `payload_v2_04`: probabilidade alta, classe 1
-- `payload_v2_05`: probabilidade muito alta, classe 1
-
-Comandos para testar em lote (Git Bash):
-
-```bash
-curl -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" -d @docs/payloads_v2/payload_v2_01_muito_baixo_nao_churn.json
-curl -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" -d @docs/payloads_v2/payload_v2_02_baixo_nao_churn.json
-curl -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" -d @docs/payloads_v2/payload_v2_03_medio_nao_churn.json
-curl -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" -d @docs/payloads_v2/payload_v2_04_alto_churn.json
-curl -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" -d @docs/payloads_v2/payload_v2_05_muito_alto_churn.json
-```
-
-## 5. Notacao cientifica na probabilidade
-
-Valor como `5.119691115895446e-10` e valido.
-
-- Esta em notacao cientifica.
-- Em decimal, aproximadamente `0.0000000005119691`.
-- Continua no intervalo [0, 1].
-
-## 6. Swagger
-
-- `http://127.0.0.1:8000/docs`
-- `http://127.0.0.1:8000/openapi.json`
 
 - [docs/payloads/payload_01_muito_baixo_nao_churn.json](docs/payloads/payload_01_muito_baixo_nao_churn.json)
 - [docs/payloads/payload_02_baixo_nao_churn.json](docs/payloads/payload_02_baixo_nao_churn.json)
@@ -113,11 +76,11 @@ Faixa esperada de resultado (threshold = 0.5):
 
 - payload_01: probabilidade muito baixa, `prediction = 0`.
 - payload_02: probabilidade baixa, `prediction = 0`.
-- payload_03: probabilidade media (~0.18), `prediction = 0`.
+- payload_03: probabilidade média (~0.18), `prediction = 0`.
 - payload_04: probabilidade alta (~0.93), `prediction = 1`.
 - payload_05: probabilidade muito alta (~0.999), `prediction = 1`.
 
-Comandos de teste:
+Comandos de teste (Git Bash):
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" -d @docs/payloads/payload_01_muito_baixo_nao_churn.json
@@ -136,3 +99,16 @@ curl.exe -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/j
 curl.exe -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" --data-binary "@docs/payloads/payload_04_alto_churn.json"
 curl.exe -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/json" --data-binary "@docs/payloads/payload_05_muito_alto_churn.json"
 ```
+
+## 5. Notação científica na probabilidade
+
+Valor como `5.119691115895446e-10` é válido.
+
+- Está em notação científica.
+- Em decimal, aproximadamente `0.0000000005119691`.
+- Continua no intervalo [0, 1].
+
+## 6. Swagger
+
+- `http://127.0.0.1:8000/docs`
+- `http://127.0.0.1:8000/openapi.json`

@@ -14,35 +14,44 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 - Análise de trade-off de custo (FP vs FN).
 - Rastreabilidade de experimentos no MLflow.
 
-Status atual da Etapa 2:
-
-- Itens 1 a 5 concluídos (incluindo consolidação de runs no MLflow).
-
 ## Estrutura do projeto
 
 ```text
 .
 ├── data/
 │   ├── Telco_customer_churn.xlsx
+│   ├── Telco_customer_churn.csv
 │   └── Telco_customer_churn_ready.csv
 ├── docs/
+│   ├── API.md
+│   ├── API_EXEMPLOS_TESTE.md
+│   ├── ARQUITETURA_DEPLOY.md
 │   ├── METRICAS.md
-│   ├── TODO.md
-│   ├── MELHORIAS_CONTINUAS_ETAPA2.md
-│   └── CHANGELOG.md
+│   ├── MODEL_CARD_FINAL.md
+│   ├── OBSERVABILIDADE.md
+│   ├── PLANO_MONITORAMENTO.md
+│   └── payloads/
 ├── notebooks/
 │   ├── 01_eda.ipynb
 │   ├── 02_baseline_dummy_logreg.ipynb
 │   ├── 03_mlp_pytorch.ipynb
 │   ├── 04_mlp_training_early_stopping.ipynb
 │   ├── 05_compare_mlp_baselines.ipynb
-│   ├── 06_tradeoff_custo_fp_fn.ipynb
-│   ├── mlflow.db
-│   ├── mlruns/
-│   └── mlflow_resumo_experimentos_etapa2.csv
+│   └── 06_tradeoff_custo_fp_fn.ipynb
+├── models/
+│   └── mlp_bundle/
+├── src/
+│   └── churn/
+│       ├── api/
+│       ├── models/
+│       └── ...
+├── tests/
+│   └── api/
 ├── requirements.txt
 └── README.md
 ```
+
+Observação: o diagrama acima resume as pastas principais. A estrutura completa inclui arquivos auxiliares de documentação e automação.
 
 ## Pré-requisitos
 
@@ -76,7 +85,7 @@ Dependências do projeto estão em requirements.txt e incluem (versões fixadas)
 ### 1) Clonar o repositório
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/FernandoAzve/9mlet-tech-challenge-1-churn-prevision.git
 cd 9mlet-tech-challenge-1-churn-prevision
 ```
 
@@ -85,22 +94,22 @@ cd 9mlet-tech-challenge-1-churn-prevision
 Windows (PowerShell):
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
 
 Windows (Git Bash):
 
 ```bash
-python -m venv .venv
-source .venv/Scripts/activate
+python -m venv venv
+source venv/Scripts/activate
 ```
 
 Linux/macOS:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate
 ```
 
 ### 3) Instalar dependências
@@ -135,11 +144,24 @@ Para reproduzir o estado atual do projeto, execute os notebooks nesta ordem:
 
 ## API de inferência (Etapa 3)
 
-A API FastAPI carrega **apenas o bundle MLP** (pré-processador sklearn serializado + rede PyTorch):
+A API FastAPI carrega **o bundle MLP produtizado** (pré-processador sklearn serializado + rede PyTorch):
 
 - `GET /health`
 - `POST /predict`
 - documentação Swagger em `/docs`
+
+Comportamento importante:
+
+- Se o bundle não estiver carregado na inicialização, `GET /health` responde com `model_loaded=false`.
+- Nesse cenário, `POST /predict` retorna `503` com mensagem orientando treino/configuração do diretório de bundle.
+
+### Acesso direto no Render (sem rodar localmente)
+
+A API está publicada no Render. Acesse a documentação interativa (Swagger):
+
+- https://ninemlet-tech-challenge-1-churn-prevision.onrender.com/docs
+
+Observação: como estamos no plano gratuito, a primeira inicialização pode demorar até 5 minutos. Após esse período, a API funciona com performance excelente.
 
 ### 1) Treinar e gerar o bundle
 
@@ -261,12 +283,29 @@ uvicorn src.churn.api.main:app --reload
 - Compara MLP vs modelos lineares/árvores com múltiplas métricas.
 - Carrega MLP do MLflow (do notebook 04).
 - Consolida o item 5: registra todos os modelos em experimento único no MLflow.
-- Gera o resumo de auditoria em notebooks/mlflow_resumo_experimentos_etapa2.csv.
 
 ### 06_tradeoff_custo_fp_fn.ipynb
 
 - Avalia trade-off de custo com varredura de threshold.
 - Reutiliza modelo registrado no MLflow.
+
+## Decisão do modelo no pipeline (com base nos notebooks)
+
+O modelo adotado no pipeline de inferência da API é o **MLP em PyTorch (bundle `models/mlp_bundle`)**.
+
+Essa escolha é reflexo direto das comparações dos notebooks:
+
+- No `05_compare_mlp_baselines.ipynb`, o **RandomForest** apareceu como mais consistente no ranking global de métricas.
+- No mesmo comparativo, a **MLP** se destacou em **F1** e **recall** após calibração de threshold.
+- No `06_tradeoff_custo_fp_fn.ipynb`, a decisão por limiar mostrou o impacto econômico de **FN vs FP**, reforçando a importância de ajustar o ponto de operação.
+
+Racional da escolha no pipeline atual:
+
+- **Objetivo de negócio do projeto:** reduzir perda por churn real (sensível a recall/F1 e calibração de threshold).
+- **Objetivo acadêmico e de engenharia:** consolidar um fluxo completo com PyTorch + bundle versionado + API + observabilidade.
+- **Deploy reprodutível:** o bundle (`preprocessor.joblib`, `mlp_state.pt`, `metadata.json`) empacota pré-processamento e modelo de forma explícita para execução estável.
+
+Resumo: o pipeline usa MLP por alinhamento com o recorte técnico e de negócio do projeto, sem ignorar que outros modelos tiveram ótimo desempenho agregado no comparativo.
 
 ## Como rodar o MLflow local
 
@@ -286,9 +325,11 @@ Experimentos relevantes atualmente:
 - MLP-Churn-EarlyStoppingBatching
 - Churn-Etapa2-Comparacao-Modelos
 
+Observação: em ambientes Windows/migração de máquina, você pode ver variantes `-local` desses experimentos (ex.: `MLP-Churn-EarlyStoppingBatching-local`) para garantir `artifact_location` gravável.
+
 ## Resultado consolidado já disponível
 
-O arquivo notebooks/mlflow_resumo_experimentos_etapa2.csv contém o consolidado de auditoria do comparativo da Etapa 2:
+Os runs consolidados da etapa de comparação ficam no MLflow. A auditoria principal pode ser consultada via UI e notebooks.
 
 - modelo
 - família
@@ -308,6 +349,20 @@ Antes de considerar alterações como prontas:
 ruff check
 pytest
 ```
+
+## Conclusão acadêmica da equipe
+
+Como equipe em início de trajetória em Machine Learning Engineering, a principal conclusão desta etapa foi que **escolha de modelo não deve ser feita por uma métrica isolada**.
+
+No comparativo técnico (`05_compare_mlp_baselines.ipynb`), o **RandomForest** apresentou melhor consistência global. Ao mesmo tempo, a **MLP** mostrou vantagem em métricas associadas ao objetivo de retenção (especialmente após calibração de threshold), e o notebook de trade-off (`06_tradeoff_custo_fp_fn.ipynb`) evidenciou que a decisão final depende do custo de **FN vs FP**.
+
+Por isso, o pipeline atual usa a MLP bundleada na API como decisão de engenharia e de escopo do projeto, mantendo a análise comparativa registrada no MLflow para transparência e auditoria.
+
+Próximos passos acadêmicos recomendados:
+
+- repetir o comparativo em novos recortes temporais para validar estabilidade;
+- avaliar calibração de probabilidade e fairness com dados adicionais;
+- testar estratégia híbrida de seleção de modelo por contexto de negócio (ex.: operação orientada a recall vs operação orientada a custo).
 
 ## Troubleshooting
 
@@ -335,17 +390,8 @@ Correção:
 2. Confirmar geração de data/Telco_customer_churn_ready.csv.
 3. Executar novamente o notebook que falhou.
 
-### 3) Problema de paralelismo no Windows (BrokenProcessPool)
 
-Situação:
-
-- Pode ocorrer em alguns cenários com n_jobs=-1 em modelos sklearn.
-
-Status atual:
-
-- O notebook 05 já está ajustado para n_jobs=1 nos modelos relevantes, visando estabilidade.
-
-### 4) Avisos de serialização no MLflow
+### 3) Avisos de serialização no MLflow
 
 Situação:
 
@@ -358,12 +404,14 @@ Status atual:
 ## Documentação de apoio
 
 - docs/METRICAS.md
-- docs/TODO.md
-- docs/MELHORIAS_CONTINUAS_ETAPA2.md
-- docs/CHANGELOG.md
 - docs/API.md
+- docs/API_EXEMPLOS_TESTE.md
+- docs/ARQUITETURA_DEPLOY.md
+- docs/OBSERVABILIDADE.md
+- docs/PLANO_MONITORAMENTO.md
+- docs/MODEL_CARD_FINAL.md
 
 ## Observações para trabalho em grupo
 
-- Para sincronização técnica, priorize o arquivo notebooks/mlflow_resumo_experimentos_etapa2.csv e os experimentos no MLflow.
+- Para sincronização técnica, priorize os experimentos consolidados no MLflow (incluindo possíveis variantes `-local`).
 - O item 5 (consolidação de experimentos MLP + ensembles) já está concluído no estado atual do projeto.

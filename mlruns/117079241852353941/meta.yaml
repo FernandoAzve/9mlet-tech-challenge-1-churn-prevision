@@ -1,0 +1,7 @@
+artifact_location: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/117079241852353941
+creation_time: 1777424272306
+experiment_id: '117079241852353941'
+last_update_time: 1777424272306
+lifecycle_stage: active
+name: Churn-Etapa2-Comparacao-Modelos-local
+workspace: default

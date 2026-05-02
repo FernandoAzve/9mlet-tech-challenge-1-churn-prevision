@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/317674659211242731/356f8155ab484f21b0ebe030299ef602/artifacts
+end_time: 1777422725550
+entry_point_name: ''
+experiment_id: '317674659211242731'
+lifecycle_stage: active
+run_id: 356f8155ab484f21b0ebe030299ef602
+run_name: LogisticRegression
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1777422718651
+status: 3
+tags: []
+user_id: eduardo.silva

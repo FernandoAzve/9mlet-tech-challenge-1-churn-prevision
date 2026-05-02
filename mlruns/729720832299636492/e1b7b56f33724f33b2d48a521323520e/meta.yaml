@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/729720832299636492/e1b7b56f33724f33b2d48a521323520e/artifacts
+end_time: 1777423047442
+entry_point_name: ''
+experiment_id: '729720832299636492'
+lifecycle_stage: active
+run_id: e1b7b56f33724f33b2d48a521323520e
+run_name: 04_mlp_training_early_stopping
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1777423036628
+status: 3
+tags: []
+user_id: eduardo.silva

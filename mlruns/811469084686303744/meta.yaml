@@ -1,0 +1,7 @@
+artifact_location: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/811469084686303744
+creation_time: 1777424536631
+experiment_id: '811469084686303744'
+last_update_time: 1777424536631
+lifecycle_stage: active
+name: Churn-Tradeoff-Custo-FP-FN-local
+workspace: default

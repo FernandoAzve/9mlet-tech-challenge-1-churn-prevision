@@ -37,27 +37,39 @@
 
 ## 2. Performance dos Modelos
 
-A tabela abaixo resume o desempenho da MLP frente a modelos comparáveis no mesmo conjunto de teste estratificado. Os valores foram extraídos dos resultados consolidados dos notebooks 05 e 06.
+A tabela abaixo resume o desempenho dos modelos avaliados no mesmo conjunto de teste estratificado. Os valores foram verificados a partir dos runs registrados em `mlruns` pelos notebooks 05 e 06.
 
-| Modelo              | PR-AUC | ROC-AUC | F1    | Recall | Precision |
-|---------------------|--------|---------|-------|--------|-----------|
-| MLP-PyTorch         | 0.47   | 0.77    | 0.53  | 0.56   | 0.51      |
-| Random Forest       | 0.45   | 0.76    | 0.51  | 0.54   | 0.48      |
-| Extra Trees         | 0.44   | 0.75    | 0.50  | 0.53   | 0.47      |
-| Logistic Regression | 0.43   | 0.75    | 0.48  | 0.51   | 0.46      |
-| Decision Tree       | 0.38   | 0.70    | 0.44  | 0.47   | 0.42      |
+| Modelo              | PR-AUC | ROC-AUC | F1     | Recall  | Precision |
+|---------------------|--------:|--------:|-------:|--------:|----------:|
+| Random Forest       | 0.6470  | 0.8402  | 0.3375 | 0.2166 | 0.7642    |
+| Extra Trees         | 0.6295  | 0.8294  | 0.2655 | 0.1604 | 0.7692    |
+| MLP-PyTorch (cal.)  | 0.5237  | 0.7843  | 0.5911 | 0.7246 | 0.4991    |
+| Decision Tree       | 0.5079  | 0.7736  | 0.4942 | 0.4545 | 0.5414    |
+| Logistic Regression | 0.4732  | 0.7321  | 0.4781 | 0.4519 | 0.5075    |
 
-**Interpretação:**
-- O MLP oferece a maior PR-AUC do grupo, o que é consistente com sua capacidade de capturar a classe minoritária de churn em um cenário desbalanceado.
-- A vantagem sobre a Regressão Logística indica que há componentes não-lineares relevantes nos dados de churn que uma fronteira linear não consegue separar adequadamente.
-- A melhoria em F1 e recall mostra que, além de discriminar classes, o modelo consegue identificar mais churns reais sem sacrificar excessivamente a precisão.
-- A comparação com ensembles de árvores sugere que o ganho da MLP não é apenas por capacidade, mas por uma representação contínua de risco que admite calibração de threshold para valor de negócio.
-- O threshold final da MLP foi calibrado em validação para maximizar F1, alinhando a operação do modelo a uma política de detecção e retenção mais conservadora.
+**Interpretação (verificada):**
+- Em termos de **PR-AUC** (métrica de ranking sensível à classe minoritária), os ensembles de árvores — `Random Forest` e `Extra Trees` — lideram, indicando melhor ordenação dos exemplos de churn no conjunto de teste.
+- Contudo, a **MLP**, quando calibrada no limiar (threshold) para otimizar **F1** na validação, alcança a **maior F1 e recall**, tornando-a a escolha preferida quando o objetivo operacional é **capturar o maior número possível de churns reais** (minimizar FNs), ainda que sua PR-AUC seja inferior aos ensembles.
+- A diferença reflete o trade-off clássico: ensembles entregam melhores scores globais de ranking (PR-AUC), enquanto a MLP calibrada oferece melhor desempenho binário no limiar escolhido (F1/recall), alinhado à política de retenção adotada no notebook 06.
+- A calibração de threshold para a MLP foi feita usando o conjunto de validação, e os valores registrados no `mlruns` confirmam o ganho de F1/recall reportado no notebook.
 
 **Notas:**
-- O MLP superou todos os baselines em PR-AUC, F1 e ROC-AUC, mostrando melhor equilíbrio entre precisão e recall para a classe de churn.
-- O threshold ótimo para a MLP foi calibrado via validação, maximizando o F1-Score.
-- Métricas detalhadas e gráficos de trade-off estão disponíveis nos notebooks 05 e 06.
+- Valores numéricos acima foram extraídos dos runs do experimento de comparação consolidado (`Churn-Etapa2-Comparacao-Modelos*`) e das análises de trade-off no notebook 06. Consulte os runs no `mlruns` para inspeção de `run_id` e artefatos.
+- A seleção do modelo para produção deve explicitar o critério: se a prioridade for recuperar valor (minimizar FN por CLTV), use a MLP calibrada; se a prioridade for precisão do ranking global (priorizar listas de clientes por score), considere o Random Forest/Extra Trees e reavaliar thresholds e políticas.
+
+**Auditabilidade (runs MLflow):**
+Para facilitar auditoria e reprodução, os runs que geraram as métricas acima estão registrados no MLflow local quando disponível. Abaixo segue um mapeamento direto para `run_id`, `run_name` e `model_uri` (artefato `model`).
+
+| Modelo              | run_name                     | run_id                                 | model_uri                      |
+|---------------------|------------------------------|----------------------------------------|--------------------------------|
+| Random Forest       | 05_compare_RandomForest      | dfa3d71f486f4f34a25fe569f58bc6f1       | runs:/dfa3d71f486f4f34a25fe569f58bc6f1/model |
+| Extra Trees         | 05_compare_ExtraTrees        | 0a2902ed6a6b4238b92f1afbc584e651       | runs:/0a2902ed6a6b4238b92f1afbc584e651/model |
+| MLP-PyTorch (cal.)  | 05_compare_MLP-PyTorch       | a9b1eb9a26ac4ff5951bf1b8cc88d277       | runs:/a9b1eb9a26ac4ff5951bf1b8cc88d277/model |
+| Decision Tree       | 05_compare_DecisionTree      | 22aaa32040a04db1aefade74b0985c33       | runs:/22aaa32040a04db1aefade74b0985c33/model |
+| Logistic Regression | 05_compare_LogisticRegression| f6b70999e08246b0bd91122bda614389       | runs:/f6b70999e08246b0bd91122bda614389/model |
+| Análise Trade-off   | 06_tradeoff_reuso_modelo     | a2b585682d57436f836a699fdcacfd3c       | runs:/a2b585682d57436f836a699fdcacfd3c/model |
+
+Os arquivos `meta.yaml` contêm `run_id`, `start_time`, `end_time` e referências a artefatos; abra-os para auditoria completa.
 
 ## 3. Limitações e Vieses
 
@@ -85,7 +97,7 @@ A tabela abaixo resume o desempenho da MLP frente a modelos comparáveis no mesm
   - O notebook 06 explora thresholds entre 0.05 e 0.95 e estima custo financeiro para cada ponto, usando um modelo de valor que penaliza Falsos Negativos em função do CLTV perdido e Falsos Positivos pelo custo da ação de retenção.
   - O threshold final foi selecionado não apenas pelo F1, mas pelo trade-off entre custo de retenção e valor recuperado. Isso resulta em uma operação mais alinhada ao impacto econômico do negócio, e não apenas à acurácia estatística.
 
-- **Falsos Negativos (FN): custos reais):**
+- **Falsos Negativos (FN): custos reais:**
   - FN representam clientes que churnam sem serem sinalizados. Na análise de custo, cada FN é tratado como perda direta do CLTV do cliente.
   - Esse cenário é o mais crítico para o problema de churn, pois a perda financeira de um cliente real pode superar o custo de uma ação de retenção mal direcionada.
   - O threshold foi calibrado para reduzir FN dentro de um limite aceitável, mesmo que isso implique aumentar um pouco a taxa de Falsos Positivos.
@@ -141,12 +153,3 @@ A tabela abaixo resume o desempenho da MLP frente a modelos comparáveis no mesm
   - Recalibrar o threshold sempre que o custo de retenção estimado ou a taxa de sucesso de campanhas mudar de forma material.
   - Retreinar o modelo sempre que houver drift consistente em features chave ou quando o desempenho de produção se degradar abaixo dos limites de governança.
   - Avaliar fairness adicional e risco de viés oculto antes de qualquer extensão do uso para novos segmentos ou coberturas de clientes.
-
----
-
-**Referências:**
-- Notebooks: 01_eda, 02_baseline_dummy_logreg, 03_mlp_pytorch, 04_mlp_training_early_stopping, 05_compare_mlp_baselines, 06_tradeoff_custo_fp_fn
-- docs/METRICAS.md
-- orientacoes_model_card.txt
-
-> Este Model Card segue as melhores práticas de documentação para projetos de Machine Learning, priorizando rigor técnico, análise crítica e transparência.

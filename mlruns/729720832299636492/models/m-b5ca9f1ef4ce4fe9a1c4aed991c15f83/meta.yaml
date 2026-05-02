@@ -1,0 +1,10 @@
+artifact_location: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/729720832299636492/models/m-b5ca9f1ef4ce4fe9a1c4aed991c15f83/artifacts
+creation_timestamp: 1777423037121
+experiment_id: '729720832299636492'
+last_updated_timestamp: 1777423047420
+model_id: m-b5ca9f1ef4ce4fe9a1c4aed991c15f83
+model_type: null
+name: model
+source_run_id: e1b7b56f33724f33b2d48a521323520e
+status: 2
+status_message: null

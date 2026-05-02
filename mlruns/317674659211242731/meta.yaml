@@ -1,0 +1,7 @@
+artifact_location: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/317674659211242731
+creation_time: 1777422711776
+experiment_id: '317674659211242731'
+last_update_time: 1777422711776
+lifecycle_stage: active
+name: churn-baselines-etapa1-local
+workspace: default

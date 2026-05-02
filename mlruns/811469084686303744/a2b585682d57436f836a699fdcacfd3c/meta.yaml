@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Projetos/Projeto_Churn/notebooks/../mlruns/811469084686303744/a2b585682d57436f836a699fdcacfd3c/artifacts
+end_time: 1777424537036
+entry_point_name: ''
+experiment_id: '811469084686303744'
+lifecycle_stage: active
+run_id: a2b585682d57436f836a699fdcacfd3c
+run_name: 06_tradeoff_reuso_modelo
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1777424536911
+status: 3
+tags: []
+user_id: eduardo.silva
