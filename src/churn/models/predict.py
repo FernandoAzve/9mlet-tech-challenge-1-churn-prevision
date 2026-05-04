@@ -10,15 +10,19 @@ Inferência em lote ou na API usando apenas o **bundle MLP** oficial.
 from __future__ import annotations
 
 import argparse
-import json
+import logging
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
+from churn.data.pandera_schemas import validate_churn_inference_features
+from churn.logging_config import configure_logging
 from churn.models.mlp_bundle import ChurnMLPBundle
 from churn.models.registry import load_churn_mlp_bundle
+
+logger = logging.getLogger(__name__)
 
 
 def get_expected_feature_columns(model: Any) -> list[str] | None:
@@ -118,6 +122,7 @@ def predict_from_csv(
     bundle = load_churn_mlp_bundle(bundle_dir)
 
     features = pd.read_csv(input_path)
+    features = validate_churn_inference_features(features)
 
     return predict_with_churn_bundle(bundle=bundle, features=features, threshold=threshold)
 
@@ -153,6 +158,13 @@ def _parse_args() -> argparse.Namespace:
 
     parser.add_argument("--threshold", type=float, default=0.5)
 
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        help="Nível de log (DEBUG, INFO, WARNING, ...).",
+    )
+
     return parser.parse_args()
 
 
@@ -161,9 +173,11 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
 
-    """CLI: gera arquivo CSV com colunas prediction e probability_churn e imprime um resumo JSON."""
+    """CLI: gera arquivo CSV com colunas prediction e probability_churn e registra resumo estruturado."""
 
     args = _parse_args()
+
+    configure_logging(level=args.log_level)
 
     output_df = predict_from_csv(
 
@@ -177,24 +191,13 @@ def main() -> None:
 
     output_df.to_csv(args.output_path, index=False)
 
-    print(
-
-        json.dumps(
-
-            {
-
-                "rows_scored": int(output_df.shape[0]),
-
-                "output_path": str(Path(args.output_path).resolve()),
-
-            },
-
-            indent=2,
-
-            ensure_ascii=False,
-
-        )
-
+    logger.info(
+        "predict_cli_completed",
+        extra={
+            "event": "predict_cli_completed",
+            "rows_scored": int(output_df.shape[0]),
+            "output_path": str(Path(args.output_path).resolve()),
+        },
     )
 
 

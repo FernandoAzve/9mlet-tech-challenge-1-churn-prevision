@@ -214,6 +214,5 @@ mlflow.db
 
 src/models*
 
-
+#Contexto para agentes de IA
 .cursor/
-.github/

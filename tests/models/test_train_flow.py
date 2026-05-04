@@ -92,25 +92,25 @@ def test_file_sha256(tmp_path: Path) -> None:
     assert len(digest) == 64
 
 
-def test_prepare_splits_validates_target() -> None:
+def test_split_holdout_validates_target() -> None:
     df = pd.DataFrame({"a": [1, 2]})
 
     with pytest.raises(ValueError):
-        train_module._prepare_splits(df, TARGET_COLUMN, random_state=0)
+        train_module._split_holdout_test(df, TARGET_COLUMN, random_state=0)
 
 
-def test_prepare_splits_returns_shapes() -> None:
+def test_split_holdout_returns_shapes() -> None:
     df = _make_dataset(40)
 
-    x_train, x_val, x_test, y_train, y_val, y_test, feature_columns = train_module._prepare_splits(
+    x_temp, x_test, y_temp, y_test, feature_columns = train_module._split_holdout_test(
         df,
         TARGET_COLUMN,
         random_state=0,
     )
 
     assert feature_columns == ["Tenure Months", "Monthly Charges", "Total Charges"]
-    assert len(x_train) + len(x_val) + len(x_test) == len(df)
-    assert len(y_train) + len(y_val) + len(y_test) == len(df)
+    assert len(x_temp) + len(x_test) == len(df)
+    assert len(y_temp) + len(y_test) == len(df)
 
 
 def test_train_mlp_flow_skips_mlflow(tmp_path: Path, monkeypatch) -> None:
@@ -128,6 +128,7 @@ def test_train_mlp_flow_skips_mlflow(tmp_path: Path, monkeypatch) -> None:
         bundle_dir=tmp_path / "bundle",
         mlflow_run_name="unit_test",
         skip_mlflow=True,
+        n_cv_splits=2,
     )
 
     assert Path(output["bundle_dir"]).exists()
@@ -152,6 +153,7 @@ def test_train_mlp_flow_with_mlflow_stub(tmp_path: Path, monkeypatch) -> None:
         bundle_dir=tmp_path / "bundle_mlflow",
         mlflow_run_name="stub-run",
         skip_mlflow=False,
+        n_cv_splits=2,
     )
 
     assert output["mlflow_run_id"] == "run-123"
@@ -184,6 +186,8 @@ def test_train_parse_args_reads_cli(monkeypatch) -> None:
     assert args.random_state == 7
     assert args.mlflow_run_name == "unit-test"
     assert args.skip_mlflow is True
+    assert args.cv_folds == 5
+    assert args.log_level == "INFO"
 
 
 def test_train_main_prints_output(monkeypatch, capsys) -> None:
@@ -202,14 +206,17 @@ def test_train_main_prints_output(monkeypatch, capsys) -> None:
             bundle_dir="bundle",
             mlflow_run_name="unit-test",
             skip_mlflow=True,
+            cv_folds=5,
+            log_level="INFO",
         ),
     )
     monkeypatch.setattr(train_module, "train_mlp_flow", lambda **kwargs: dummy_out)
 
     train_module.main()
 
-    output = capsys.readouterr().out
-    assert "bundle_dir" in output
+    line = capsys.readouterr().out.strip().splitlines()[-1]
+    payload = json.loads(line)
+    assert "bundle_dir" in payload
 
 
 def test_train_module_runs_as_main(monkeypatch, tmp_path: Path, capsys) -> None:
@@ -238,5 +245,6 @@ def test_train_module_runs_as_main(monkeypatch, tmp_path: Path, capsys) -> None:
     sys.modules.pop("churn.models.train", None)
     runpy.run_module("churn.models.train", run_name="__main__")
 
-    payload = json.loads(capsys.readouterr().out)
+    line = capsys.readouterr().out.strip().splitlines()[-1]
+    payload = json.loads(line)
     assert "bundle_dir" in payload
