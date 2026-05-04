@@ -33,6 +33,12 @@ class DummyNoFeatures:
     pass
 
 
+def _read_json_log(capsys) -> dict:
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert lines, "Expected log output"
+    return json.loads(lines[-1])
+
+
 def _create_bundle(bundle_dir: Path) -> Path:
     features = pd.DataFrame(
         {
@@ -101,8 +107,7 @@ def test_main_writes_output(monkeypatch, tmp_path: Path, capsys) -> None:
 
     assert output_path.exists()
 
-    line = capsys.readouterr().out.strip().splitlines()[-1]
-    summary = json.loads(line)
+    summary = _read_json_log(capsys)
     assert summary["rows_scored"] == 1
 
 
@@ -162,6 +167,5 @@ def test_module_runs_as_main(monkeypatch, tmp_path: Path, capsys) -> None:
     runpy.run_module("churn.models.predict", run_name="__main__")
 
     assert output_path.exists()
-    line = capsys.readouterr().out.strip().splitlines()[-1]
-    payload = json.loads(line)
+    payload = _read_json_log(capsys)
     assert payload["rows_scored"] == 1

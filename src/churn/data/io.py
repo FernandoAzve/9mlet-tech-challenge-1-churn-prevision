@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from churn.config import DEFAULT_DATA_PATH_CANDIDATES, DEFAULT_SEED, TARGET_COLUMN
 from churn.data.schemas import split_features_target
@@ -48,4 +49,23 @@ def stratified_train_test_split(
         random_state=random_state,
         stratify=target,
     )
+
+
+def stratified_kfold_split(
+    features: pd.DataFrame,
+    target: pd.Series,
+    n_splits: int = 5,
+    random_state: int = DEFAULT_SEED,
+    shuffle: bool = True,
+) -> list[tuple[np.ndarray, np.ndarray]]:
+    if n_splits < 2:
+        raise ValueError("n_splits must be >= 2.")
+
+    splitter = StratifiedKFold(
+        n_splits=n_splits,
+        shuffle=shuffle,
+        random_state=random_state,
+    )
+
+    return [(train_idx, val_idx) for train_idx, val_idx in splitter.split(features, target)]
 

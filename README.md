@@ -26,6 +26,7 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 │   ├── API.md
 │   ├── API_EXEMPLOS_TESTE.md
 │   ├── ARQUITETURA_DEPLOY.md
+│   ├── ML_Canvas_TC1_FIAP_v2.png
 │   ├── METRICAS.md
 │   ├── MODEL_CARD_FINAL.md
 │   ├── OBSERVABILIDADE.md
@@ -52,6 +53,10 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 ```
 
 Observação: o diagrama acima resume as pastas principais. A estrutura completa inclui arquivos auxiliares de documentação e automação.
+
+## ML Canvas
+
+Veja o canvas de negócio e métricas em [docs/ML_Canvas_TC1_FIAP_v3.png](docs/ML_Canvas_TC1_FIAP_v3.png).
 
 ## Contexto para agentes de IA (`.github/`)
 

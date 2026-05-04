@@ -14,6 +14,12 @@ from churn.config import TARGET_COLUMN
 from churn.models import train as train_module
 
 
+def _read_json_log(capsys) -> dict:
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert lines, "Expected log output"
+    return json.loads(lines[-1])
+
+
 def _make_dataset(n_rows: int = 40) -> pd.DataFrame:
     rng = np.random.default_rng(0)
     y = np.array([0, 1] * (n_rows // 2))
@@ -214,9 +220,8 @@ def test_train_main_prints_output(monkeypatch, capsys) -> None:
 
     train_module.main()
 
-    line = capsys.readouterr().out.strip().splitlines()[-1]
-    payload = json.loads(line)
-    assert "bundle_dir" in payload
+    payload = _read_json_log(capsys)
+    assert payload["bundle_dir"] == "bundle"
 
 
 def test_train_module_runs_as_main(monkeypatch, tmp_path: Path, capsys) -> None:
@@ -245,6 +250,5 @@ def test_train_module_runs_as_main(monkeypatch, tmp_path: Path, capsys) -> None:
     sys.modules.pop("churn.models.train", None)
     runpy.run_module("churn.models.train", run_name="__main__")
 
-    line = capsys.readouterr().out.strip().splitlines()[-1]
-    payload = json.loads(line)
+    payload = _read_json_log(capsys)
     assert "bundle_dir" in payload
