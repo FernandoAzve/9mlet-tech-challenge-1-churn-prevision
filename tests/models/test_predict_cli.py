@@ -93,6 +93,7 @@ def test_main_writes_output(monkeypatch, tmp_path: Path, capsys) -> None:
             input_path="input.csv",
             output_path=str(output_path),
             threshold=0.5,
+            log_level="INFO",
         ),
     )
 
@@ -100,7 +101,8 @@ def test_main_writes_output(monkeypatch, tmp_path: Path, capsys) -> None:
 
     assert output_path.exists()
 
-    summary = json.loads(capsys.readouterr().out)
+    line = capsys.readouterr().out.strip().splitlines()[-1]
+    summary = json.loads(line)
     assert summary["rows_scored"] == 1
 
 
@@ -160,5 +162,6 @@ def test_module_runs_as_main(monkeypatch, tmp_path: Path, capsys) -> None:
     runpy.run_module("churn.models.predict", run_name="__main__")
 
     assert output_path.exists()
-    payload = json.loads(capsys.readouterr().out)
+    line = capsys.readouterr().out.strip().splitlines()[-1]
+    payload = json.loads(line)
     assert payload["rows_scored"] == 1

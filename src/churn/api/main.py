@@ -7,7 +7,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-from churn.api.logging_config import configure_logging
+from churn.logging_config import configure_logging
 from churn.api.middleware import LatencyLoggingMiddleware
 from churn.api.routes import router
 from churn.config import DEFAULT_MLP_BUNDLE_DIR

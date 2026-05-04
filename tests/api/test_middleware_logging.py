@@ -7,7 +7,7 @@ import sys
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from churn.api.logging_config import JsonFormatter, configure_logging
+from churn.logging_config import JsonFormatter, configure_logging
 from churn.api.middleware import LatencyLoggingMiddleware
 
 
