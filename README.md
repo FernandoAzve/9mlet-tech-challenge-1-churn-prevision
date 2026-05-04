@@ -26,6 +26,7 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 │   ├── API.md
 │   ├── API_EXEMPLOS_TESTE.md
 │   ├── ARQUITETURA_DEPLOY.md
+│   ├── ML_Canvas_TC1_FIAP_v3.png
 │   ├── METRICAS.md
 │   ├── MODEL_CARD_FINAL.md
 │   ├── OBSERVABILIDADE.md
@@ -52,6 +53,51 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 ```
 
 Observação: o diagrama acima resume as pastas principais. A estrutura completa inclui arquivos auxiliares de documentação e automação.
+
+## ML Canvas
+
+Veja o canvas de negócio e métricas em [docs/ML_Canvas_TC1_FIAP_v3.png](docs/ML_Canvas_TC1_FIAP_v3.png).
+
+## Contexto para agentes de IA (`.github/`)
+
+A pasta **`.github/`** destina-se a **orientar assistentes de código e fluxos automatizados** (GitHub Copilot, Cursor e integrações semelhantes): reúne **contexto fixo do projeto**, **regras**, **políticas de dependências** e **prompts** reutilizáveis, para que intervenções da IA permaneçam alinhadas ao Tech Challenge, à stack acordada e às práticas do repositório. Não substitui a documentação de negócio em `docs/`; complementa o que o agente deve “ler primeiro” antes de sugerir mudanças.
+
+Estrutura interna:
+
+- **`copilot-instructions.md`** (raiz de `.github/`): instruções gerais para o Copilot no VS Code — ordem de leitura (contexto → regras → libs), stack oficial, regras obrigatórias (validação com `ruff` e `pytest`, simplicidade) e referências cruzadas às subpastas abaixo.
+
+- **`context/`** — contexto de produto e engenharia, em Markdown, para alinhar escopo antes de implementar:
+  - **`project-goals.md`**: objetivos de negócio, enunciado do problema, restrições e stakeholders.
+  - **`architecture.md`**: visão de arquitetura da solução no repositório.
+  - **`tech-stack.md`**: tecnologias e ferramentas adotadas.
+  - **`deployment.md`**: aspectos relevantes de deploy e execução em ambiente real ou homologação.
+
+- **`rules/`** — normas que os agentes devem seguir ao propor código ou processos:
+  - **`ai-usage-rules.md`**: uso responsável da IA (limites, revisão humana, o que automatizar ou não).
+  - **`business-rules.md`**: regras de domínio e decisões de negócio que afetam o modelo ou a API.
+  - **`code-style.md`**: convenções de estilo e organização de código.
+  - **`git-rules.md`**: branches, commits e fluxo de colaboração em Git.
+  - **`security-rules.md`**: práticas de segurança (dados, segredos, superfície da API).
+  - **`testing-rules.md`**: expectativas sobre testes, cobertura mínima de comportamento e qualidade.
+
+- **`libs/`** — política de dependências e modelos:
+  - **`allowed-libs.md`**: bibliotecas permitidas, com justificativa e uso típico.
+  - **`forbidden-libs.md`**: dependências ou categorias a evitar e motivos.
+  - **`ai-models.md`**: diretrizes sobre modelos de IA / LLMs quando aplicável ao fluxo do projeto.
+
+- **`prompts/`** — prompts em formato `.prompt.md` (metadados YAML + corpo) para **comandos ou fluxos nomeados** (revisão, refactor, documentação, etc.):
+  - **`architecture-review.prompt.md`**: revisão de arquitetura.
+  - **`challenge-solution.prompt.md`**: encaminhamento da solução do desafio.
+  - **`extract-business-rules.prompt.md`**: extração ou consolidação de regras de negócio a partir do material existente.
+  - **`generate-boilerplate.prompt.md`**: geração de boilerplate alinhado ao projeto.
+  - **`generate-docs.prompt.md`**: produção ou atualização de documentação.
+  - **`kickoff-project.prompt.md`**: alinhamento inicial (negócio, requisitos, riscos) antes de codificar.
+  - **`pre-deploy-validation.prompt.md`**: checagens antes de deploy.
+  - **`refactor-controlled.prompt.md`**: refatoração com escopo e risco controlados.
+  - **`review-pr.prompt.md`**: revisão de pull request.
+  - **`test-strategy.prompt.md`**: definição ou revisão de estratégia de testes.
+
+Em conjunto, esses arquivos definem **o “manual do agente”** para este repositório: prioridade de leitura, limites e comandos padronizados, sem acoplar essa lógica ao código em `src/`.
 
 ## Pré-requisitos
 

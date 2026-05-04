@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import pandas as pd
+import pandera as pa
 
 from churn.config import TARGET_COLUMN
 
@@ -32,6 +33,22 @@ def validate_ready_dataset(df: pd.DataFrame, target_column: str = TARGET_COLUMN)
         raise ValueError("Target column contains null values.")
     if not pd.api.types.is_numeric_dtype(df[target_column]):
         raise ValueError("Target column must be numeric.")
+
+
+def validate_ready_dataset_pandera(df: pd.DataFrame, target_column: str = TARGET_COLUMN) -> None:
+    schema = pa.DataFrameSchema(
+        {
+            target_column: pa.Column(
+                int,
+                checks=pa.Check.isin([0, 1]),
+                nullable=False,
+            ),
+        },
+        coerce=True,
+        strict=False,
+    )
+
+    schema.validate(df, lazy=True)
 
 
 def split_features_target(
