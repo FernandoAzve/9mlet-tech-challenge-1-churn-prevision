@@ -3,10 +3,10 @@
   "zip_code": 93422,
   "latitude": 35.453912,
   "longitude": -120.69461,
-  "tenure_months": 58,
+  "tenure_months": 72,
   "monthly_charges": 24.7,
-  "total_charges": 1519.0,
-  "cltv": 5138,
+  "total_charges": 1778.4,
+  "cltv": 6100,
   "gender": "Female",
   "senior_citizen": false,
   "partner": true,
@@ -21,7 +21,7 @@
   "streaming_tv": "No internet service",
   "streaming_movies": "No internet service",
   "contract": "Two year",
-  "paperless_billing": true,
+  "paperless_billing": false,
   "payment_method": "Credit card (automatic)",
   "threshold": 0.5
 }
