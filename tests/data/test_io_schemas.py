@@ -4,10 +4,15 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pandera as pa
 import pytest
 
 from churn.config import TARGET_COLUMN
 from churn.data import io as data_io
+from churn.data.pandera_schemas import (
+    validate_churn_inference_features,
+    validate_churn_training_dataset,
+)
 from churn.data.schemas import split_features_target, validate_ready_dataset
 
 
@@ -80,6 +85,17 @@ def test_stratified_train_test_split_keeps_classes() -> None:
     assert len(x_train) + len(x_test) == len(features)
 
 
+def test_stratified_kfold_split_keeps_classes() -> None:
+    features = pd.DataFrame({"a": list(range(20))})
+    target = pd.Series([0, 1] * 10)
+
+    splits = data_io.stratified_kfold_split(features, target, n_splits=4, random_state=0)
+
+    assert len(splits) == 4
+    for _train_idx, val_idx in splits:
+        assert set(target.iloc[val_idx].unique()) == {0, 1}
+
+
 def test_validate_ready_dataset_errors() -> None:
     df_missing = pd.DataFrame({"a": [1]})
     with pytest.raises(ValueError):
@@ -102,3 +118,33 @@ def test_split_features_target_returns_expected() -> None:
     assert list(features.columns) == ["a"]
     assert target.dtype == int
     assert target.tolist() == [1, 0]
+
+
+def test_validate_churn_training_dataset_accepts_valid_df() -> None:
+    df = pd.DataFrame(
+        {
+            TARGET_COLUMN: [0, 1],
+            "Tenure Months": [1, 2],
+            "Monthly Charges": [20.0, 30.0],
+            "Total Charges": [100.0, 200.0],
+            "CLTV": [1000.0, 2000.0],
+        }
+    )
+
+    validated = validate_churn_training_dataset(df)
+
+    pd.testing.assert_frame_equal(validated, df)
+
+
+def test_validate_churn_training_dataset_rejects_empty() -> None:
+    df = pd.DataFrame({TARGET_COLUMN: []})
+
+    with pytest.raises(pa.errors.SchemaError):
+        validate_churn_training_dataset(df)
+
+
+def test_validate_churn_inference_features_rejects_empty() -> None:
+    df = pd.DataFrame({"Tenure Months": []})
+
+    with pytest.raises(pa.errors.SchemaError):
+        validate_churn_inference_features(df)
