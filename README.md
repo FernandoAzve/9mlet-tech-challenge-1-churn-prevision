@@ -26,7 +26,7 @@ Este repositório implementa um fluxo completo de previsão de churn em telecom,
 │   ├── API.md
 │   ├── API_EXEMPLOS_TESTE.md
 │   ├── ARQUITETURA_DEPLOY.md
-│   ├── ML_Canvas_TC1_FIAP_v2.png
+│   ├── ML_Canvas_TC1_FIAP_v3.png
 │   ├── METRICAS.md
 │   ├── MODEL_CARD_FINAL.md
 │   ├── OBSERVABILIDADE.md
